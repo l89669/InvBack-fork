@@ -1,0 +1,82 @@
+name: ${project.name}
+version: '${project.version}'
+main: ${project.groupId}.${project.artifactId}.${project.name}
+description: '${project.description}'
+
+commands:
+  ${project.name}:
+    aliases: [inv]
+    description: 这是一个玩家数据备份插件 
+
+permissions:
+  ${project.name}.*:
+    description: ${project.name}插件的所有权限
+    default: op
+    children:
+      ${project.name}.cmd.*: true
+      ${project.name}.cmdcomplete : true
+  ${project.name}.cmd.*:
+    description: ${project.name}插件所有命令的权限
+    default: op
+    children:
+      ${project.name}.cmd.list: true
+      ${project.name}.cmd.backup: true
+      ${project.name}.cmd.clearbackup: true
+      ${project.name}.cmd.copy: true
+      ${project.name}.cmd.help: true
+      ${project.name}.cmd.load: true
+      ${project.name}.cmd.rollback: true
+      ${project.name}.cmd.reset: true
+      ${project.name}.cmd.set: true
+      ${project.name}.cmd.save: true
+      ${project.name}.cmd.runtask: true
+  ${project.name}.cmd.help:
+    description: 使用/inv help 的权限
+    default: op
+  ${project.name}.cmd.list:
+    description: 使用/inv list [时间]  的权限
+    default: op
+  ${project.name}.cmd.backup:
+    description: 使用命令/inv backup [玩家]  的权限
+    default: op
+  ${project.name}.cmd.clearbackup:
+    description: 使用命令/inv clearbackup的权限
+    default: op
+  ${project.name}.cmd.copy:
+    description: 使用命令/inv copy <玩家1> <玩家2> 的权限
+    default: op
+  ${project.name}.cmd.load:
+    description: 使用命令/inv load <玩家1> <玩家2> 的权限
+    default: op
+  ${project.name}.cmd.rollback:
+    description: 使用/inv rollback [玩家] 的权限
+    default: op
+  ${project.name}.cmd.set:
+    description: 使用/inv set <目标玩家> <日期> <备份> <背包来源>
+    default: op
+  ${project.name}.cmd.save:
+    description: 使用/inv save <玩家1> <玩家2>
+    default: op
+  ${project.name}.cmd.reload:
+    description: 使用/inv save <玩家1> <玩家2>
+    default: op
+    children:
+      ${project.name}.cmd.reload.all: true
+      ${project.name}.cmd.reload.config: true
+      ${project.name}.cmd.reload.lang: true
+  ${project.name}.cmd.reload.all:
+    description: 使用 /inv reload all 的权限
+    default: op
+  ${project.name}.cmd.reload.config:
+    description: 使用/inv reload config 的权限
+    default: op
+  ${project.name}.cmd.reload.lang:
+    description: 使用/inv reload lang 的权限
+    default: op
+  ${project.name}.cmd.run:
+    description: 使用/inv runtask 的权限
+    default: op
+  ${project.name}.cmd.cmdcomplete:
+    description: 命令Tab自动补全的权限
+    default: op
+  

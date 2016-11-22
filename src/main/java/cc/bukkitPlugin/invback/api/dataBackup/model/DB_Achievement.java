@@ -1,0 +1,197 @@
+package cc.bukkitPlugin.invback.api.dataBackup.model;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import cc.bukkitPlugin.invback.InvBack;
+import cc.bukkitPlugin.invback.api.FileNameMode;
+import cc.bukkitPlugin.util.FileUtil;
+import cc.bukkitPlugin.util.Function;
+import cc.bukkitPlugin.util.IOUtil;
+import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.NMSUtil;
+
+public class DB_Achievement extends ADB_CompressNBT{
+
+    private Method method_EntityPlayerMP_getStatisticMan;
+    private Method method_StatisticsFile_loadStatistic;
+    private Method method_StatisticsFile_saveStatistic;
+    private Field field_StatFileWriter_stats;
+    
+    public DB_Achievement(InvBack pPlugin){
+        super(pPlugin,"成就数据备份");
+
+        this.mDataPath="world"+File.separator+"stats"+File.separator;
+        this.mFileNameMode=FileNameMode.UUID;
+    }
+
+    @Override
+    public boolean init(){
+        try{
+            for(Method sMethod : NMSUtil.clazz_EntityPlayerMP.getDeclaredMethods()){
+                if(Function.isEmpty(sMethod.getParameterTypes())&&sMethod.getReturnType().getSimpleName().toLowerCase().contains("statistic")){
+                    this.method_EntityPlayerMP_getStatisticMan=sMethod;
+                    break;
+                }
+            }
+            if(this.method_EntityPlayerMP_getStatisticMan==null)
+                return false;
+            
+            Class<?> tClazz=this.method_EntityPlayerMP_getStatisticMan.getReturnType();
+            this.method_StatisticsFile_loadStatistic=ClassUtil.getUnknowMethod(tClazz,Map.class,String.class).get(0);
+            this.method_StatisticsFile_saveStatistic=ClassUtil.getUnknowMethod(tClazz,String.class,Map.class).get(0);
+            this.field_StatFileWriter_stats=ClassUtil.getField(tClazz.getSuperclass(),Map.class,-1).get(0);
+            
+        }catch(Throwable exp){
+            if(!(exp instanceof ClassNotFoundException))
+                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String getName(){
+        return "AchievementDataBackup";
+    }
+
+    @Override
+    protected String getFileSuffix(){
+        return "json";
+    }
+
+    @Override
+    protected Object saveDataToNBT(Player pFromPlayer){
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void loadDataFromStream(CommandSender pSender,InputStream pIStream,Player pToPlayer) throws IOException{
+        this.loadDataFromString(pToPlayer,IOUtil.readContent(pIStream,"UTF-8"));
+    }
+
+    private Object getStatMan(Player pPlayer){
+        return ClassUtil.invokeMethod(NMSUtil.getNMSPlayer(pPlayer),this.method_EntityPlayerMP_getStatisticMan);
+    }
+    
+    private Map<Object,Object> getManStatValue(Object pStatMan){
+        return (Map<Object,Object>)ClassUtil.getFieldValue(pStatMan,this.field_StatFileWriter_stats);
+    }
+    
+    protected String saveDataToString(Player pFromPlayer){
+        Object tStatMan=this.getStatMan(pFromPlayer);
+        return (String)ClassUtil.invokeMethod(tStatMan,this.method_StatisticsFile_saveStatistic,this.getManStatValue(tStatMan));
+    }
+
+    protected void loadDataFromString(Player pToPlayer,String pData){
+        Object tStatMan=this.getStatMan(pToPlayer);
+        Map<Object,Object> tPlayerStatValue=this.getManStatValue(tStatMan);
+        tPlayerStatValue.clear();
+        tPlayerStatValue.putAll((Map<Object,Object>)ClassUtil.invokeMethod(tStatMan,this.method_StatisticsFile_loadStatistic,pData));
+    }
+
+    @Override
+    public boolean restore(CommandSender pSender,ZipFile pBackupData,OfflinePlayer pFromPlayer,Player pToPlayer) throws IOException{
+        if(!this.mEnable)
+            return false;
+
+        String tZipEntrySuffix=this.getPlayerFileName(pFromPlayer);
+        ZipEntry tEntry=pBackupData.getEntry(this.getName()+File.separator+tZipEntrySuffix);
+        if(tEntry==null){
+            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+        }else{
+            this.loadDataFromStream(pSender,pBackupData.getInputStream(tEntry),pToPlayer);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean loadFrom(CommandSender pSender,File pLoadDir,Player pToPlayer,OfflinePlayer pFromPlayer) throws IOException{
+        if(!this.mEnable)
+            return false;
+
+        File tLoadDir=pLoadDir==null?this.mDataDir:pLoadDir;
+        File tLoadFile=new File(tLoadDir,this.getPlayerFileName(pFromPlayer));
+        if(!tLoadFile.isFile()){
+            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+        }else{
+            this.loadDataFromStream(pSender,new FileInputStream(tLoadFile),pToPlayer);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean saveTo(CommandSender pSender,File pSaveDir,Player pFromPlayer,OfflinePlayer pToPlayer) throws IOException{
+        if(!this.mEnable)
+            return false;
+
+        File tSaveDir=pSaveDir==null?this.mDataDir:pSaveDir;
+        String tData=this.saveDataToString(pFromPlayer);
+        String tFileName=this.getPlayerFileName(pToPlayer);
+        File tDataFile=new File(tSaveDir,tFileName);
+        File tDataFileTmp=new File(tSaveDir,tFileName+".tmp");
+        FileOutputStream tFOStream=null;
+        try{
+            tFOStream=FileUtil.openOutputStream(tDataFileTmp,false);
+            tFOStream.write(tData.getBytes("UTF-8"));
+            tFOStream.flush();
+            if(tDataFile.isFile())
+                tDataFile.delete();
+            tDataFileTmp.renameTo(tDataFile);
+        }finally{
+            IOUtil.closeStream(tFOStream);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean loadFromMemoryMap(CommandSender pSender,Player pToPlayer,Map<Object,Object> pMemoryData){
+        Object tObj=pMemoryData.get(this.getClass());
+        if(tObj instanceof String){
+            this.loadDataFromString(pToPlayer,(String)tObj);
+        }
+        return super.loadFromMemoryMap(pSender,pToPlayer,pMemoryData);
+    }
+
+    @Override
+    public boolean saveToMemoryMap(CommandSender pSender,Player pFromPlayer,Map<Object,Object> pMemoryData){
+        pMemoryData.put(this.getClass(),this.saveDataToString(pFromPlayer));
+        return true;
+    }
+
+    @Override
+    public boolean copy(CommandSender pSender,Player pFromPlayer,Player pToPlayer){
+        if(!this.mEnable)
+            return false;
+
+        this.loadDataFromString(pToPlayer,this.saveDataToString(pFromPlayer));
+        return true;
+    }
+
+    @Override
+    public boolean reset(CommandSender pSender,Player pTargetPlayer){
+        if(!this.mEnable)
+            return false;
+
+        this.loadDataFromString(pTargetPlayer,"{}");
+        return true;
+    }
+
+}

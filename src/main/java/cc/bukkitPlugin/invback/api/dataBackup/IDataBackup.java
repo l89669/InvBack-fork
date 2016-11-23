@@ -47,15 +47,26 @@ public interface IDataBackup extends IModel{
     /**
      * 备份服务器此模块的所有玩家数据
      * <p>
-     * 插件会先创建一个临时文件夹,然后再在该文件夹下再以此模块名字创建一个文件夹,
+     * 插件会先创建一个临时文件夹,然后再在该文件夹下以此模块名字创建一个文件夹,
      * 最后创建的那个文件夹就是pTargetDir
      * </p>
-     * @param pPlayerDataDir    服务器原版数据存储位置
      * @param pTargetDir        数据要备份到的地方
      * @param pEnableReplace    是否用在线玩家数据替换文件复制
      * @return                  是否操作成功
      */
     public boolean backup(CommandSender pSender,File pTargetDir,boolean pEnableReplace) throws IOException;
+
+    /**
+     * 备份服务器此模块指定玩家的数据到指定文件夹
+     * <p>
+     * 插件会先创建一个临时文件夹,然后再在该文件夹下以此模块名字创建一个文件夹,
+     * 最后创建的那个文件夹就是pTargetDir
+     * </p>
+     * @param pTargetDir        数据要备份到的地方,不能为null
+     * @param pTargetPlayer     备份谁的数据
+     * @return                  是否操作成功
+     */
+    public boolean backup(CommandSender pSender,File pTargetDir,OfflinePlayer pTargetPlayer) throws IOException;
 
     /**
      * 还原某个备份到指定玩家
@@ -131,5 +142,5 @@ public interface IDataBackup extends IModel{
      * @return              是否操作成功
      */
     public boolean reset(CommandSender pSender,Player pTargetPlayer);
-    
+
 }

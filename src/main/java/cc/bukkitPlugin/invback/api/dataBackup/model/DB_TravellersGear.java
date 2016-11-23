@@ -17,9 +17,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import cc.bukkitPlugin.invback.InvBack;
+import cc.bukkitPlugin.invback.api.dataBackup.DataBackupAPI;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.config.CommentedSection;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
@@ -123,6 +124,11 @@ public class DB_TravellersGear extends ADataBackup{
             FileUtil.copyFile(tCopySource,tTargetFile);
         }
         return true;
+    }
+    
+    @Override
+    public boolean backup(CommandSender pSender,File pTargetDir,OfflinePlayer pTargetPlayer) throws IOException{
+        return this.backup(pSender,pTargetDir,DataBackupAPI.isReplaceFileDataWithOnlineData());
     }
 
     /**

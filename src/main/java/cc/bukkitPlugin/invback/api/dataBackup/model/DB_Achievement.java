@@ -22,6 +22,7 @@ import cc.bukkitPlugin.util.Function;
 import cc.bukkitPlugin.util.IOUtil;
 import cc.bukkitPlugin.util.ClassUtil;
 import cc.bukkitPlugin.util.NMSUtil;
+import cc.bukkitPlugin.util.config.CommentedSection;
 
 public class DB_Achievement extends ADB_CompressNBT{
 
@@ -72,6 +73,12 @@ public class DB_Achievement extends ADB_CompressNBT{
         return "json";
     }
 
+    @Override
+    public boolean addDefaultConfig(CommentedSection pSection){
+        pSection.getParent().addDefaultComments(pSection.getName(),"成就系统由于客户端的更新机制(只会完成而不会消失)","在服务器重置成就后,客户端的成就显示会不及时","可通过重新登陆服务器解决");
+        return super.addDefaultConfig(pSection);
+    }
+    
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         throw new UnsupportedOperationException();

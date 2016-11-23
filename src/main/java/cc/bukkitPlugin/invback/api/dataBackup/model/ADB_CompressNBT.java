@@ -93,9 +93,9 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     @Override
     public boolean backup(CommandSender pSender,File pTargetDir,boolean pEnableReplace) throws IOException{
-        if(!(this instanceof DB_VanillaData)||!this.mEnable)
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
             return false;
-        
+
         HashSet<String> tBackedFile=new HashSet<>();
         if(pEnableReplace){
             for(Player sPlayer : CCBukkit.getOnlinePlayers()){
@@ -130,10 +130,30 @@ public abstract class ADB_CompressNBT extends ADataBackup{
     }
 
     @Override
+    public boolean backup(CommandSender pSender,File pTargetDir,OfflinePlayer pTargetPlayer) throws IOException{
+        File tDataFile=new File(this.mDataDir,this.getPlayerFileName(pTargetPlayer));
+        if(!tDataFile.isFile()){
+            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pTargetPlayer.getName()));
+        }
+        File tSaveFile=new File(pTargetDir,this.getPlayerFileName(pTargetPlayer));
+        FileInputStream tFIPStream=null;
+        FileOutputStream tFOPStream=null;
+        try{
+            tFIPStream=new FileInputStream(tDataFile);
+            tFOPStream=FileUtil.openOutputStream(tSaveFile,false);
+            IOUtil.copy(tFIPStream,tFOPStream);
+        }finally{
+            IOUtil.closeStream(tFIPStream);
+            IOUtil.closeStream(tFOPStream);
+        }
+        return true;
+    }
+
+    @Override
     public boolean restore(CommandSender pSender,ZipFile pBackupData,OfflinePlayer pFromPlayer,Player pToPlayer) throws IOException{
-        if(!(this instanceof DB_VanillaData)||!this.mEnable)
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
             return false;
-        
+
         String tZipEntrySuffix=this.getPlayerFileName(pFromPlayer);
         ZipEntry tEntry=pBackupData.getEntry(this.getName()+File.separator+tZipEntrySuffix);
         if(tEntry==null&&this instanceof DB_VanillaData){ // 使用旧的保存方式
@@ -149,9 +169,9 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     @Override
     public boolean saveTo(CommandSender pSender,File pSaveDir,Player pFromPlayer,OfflinePlayer pToPlayer) throws IOException{
-        if(!(this instanceof DB_VanillaData)||!this.mEnable)
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
             return false;
-        
+
         File tSaveDir=pSaveDir==null?this.mDataDir:pSaveDir;
         Object tNBTTag=this.saveDataToNBT(pFromPlayer);
         String tFileName=this.getPlayerFileName(pToPlayer);
@@ -173,9 +193,9 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     @Override
     public boolean loadFrom(CommandSender pSender,File pLoadDir,Player pToPlayer,OfflinePlayer pFromPlayer) throws IOException{
-        if(!(this instanceof DB_VanillaData)||!this.mEnable)
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
             return false;
-        
+
         File tLoadDir=pLoadDir==null?this.mDataDir:pLoadDir;
         File tLoadFile=new File(tLoadDir,this.getPlayerFileName(pFromPlayer));
         if(!tLoadFile.isFile()){
@@ -188,12 +208,18 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     @Override
     public boolean saveToMemoryMap(CommandSender pSender,Player pFromPlayer,Map<Object,Object> pMemoryData){
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
+            return false;
+
         pMemoryData.put(this.getClass(),this.saveDataToNBT(pFromPlayer));
         return true;
     }
 
     @Override
     public boolean loadFromMemoryMap(CommandSender pSender,Player pToPlayer,Map<Object,Object> pMemoryData){
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
+            return false;
+
         Object tNBTTag=pMemoryData.get(this.getClass());
         if(tNBTTag!=null){
             this.loadDataFromNBT(pToPlayer,tNBTTag);
@@ -203,9 +229,9 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     @Override
     public boolean copy(CommandSender pSender,Player pFromPlayer,Player pToPlayer){
-        if(!(this instanceof DB_VanillaData)||!this.mEnable)
+        if(!(this instanceof DB_VanillaData)&&!this.mEnable)
             return false;
-        
+
         Object tNBTTag=this.saveDataToNBT(pFromPlayer);
         if(tNBTTag==null){
             tNBTTag=NBTUtil.newNBTTagCompound();

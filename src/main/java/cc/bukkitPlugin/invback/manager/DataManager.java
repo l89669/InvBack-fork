@@ -28,6 +28,7 @@ import cc.bukkitPlugin.invback.api.dataBackup.IDataBackup;
 import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.Function;
 import cc.bukkitPlugin.util.IOUtil;
+import cc.bukkitPlugin.util.StringUtil;
 import cc.bukkitPlugin.util.plugin.manager.AManager;
 
 public class DataManager extends AManager<InvBack>{
@@ -119,6 +120,81 @@ public class DataManager extends AManager<InvBack>{
     }
 
     /**
+     * 备份玩家数据
+     * @param pSender       请求发送者
+     */
+    public void backup(CommandSender pSender,String pSubDir,OfflinePlayer pTargetPlayer){
+        long tStartTime=InvBack.getJVMTime();
+        File tTempDir=new File(DataBackupAPI.getBackupDir(),"tempplayer"+File.separator);
+
+        try{
+            FileUtil.clearDir(tTempDir);
+        }catch(IOException exp){
+            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
+        }
+        if(!tTempDir.isDirectory())
+            tTempDir.mkdirs();
+
+        Date tBackTime=new Date(InvBack.getJVMTime());
+        for(IDataBackup sModel : DataBackupAPI.getInstance().getAllModels()){
+            try{
+                File tModleTempDir=new File(tTempDir,sModel.getName());
+                tModleTempDir.mkdir();
+                sModel.backup(pSender,tModleTempDir,pTargetPlayer);
+            }catch(Throwable exp){
+                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+            }
+        }
+
+        if(Function.isEmpty(tTempDir.list())){
+            InvBack.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
+            return;
+        }
+        String tTimedBackupFileName=this.getBackupFileNameFromDate(tBackTime);
+        if(StringUtil.isNotEmpty(pSubDir)){
+            tTimedBackupFileName=pSubDir+File.separator+tTimedBackupFileName;
+        }
+        File tTimedBackupFile=new File(DataBackupAPI.getBackupDir(),tTimedBackupFileName);
+        File tTimedTempZipFile=new File(DataBackupAPI.getBackupDir(),tTimedBackupFileName+".tmp");
+        ZipOutputStream tZOStream=null;
+        try{
+            FileUtil.createNewFile(tTimedTempZipFile,true);
+            tZOStream=new ZipOutputStream(new FileOutputStream(tTimedTempZipFile));
+            FileUtil.zipFileAndDir(tZOStream,tTempDir,false);
+        }catch(IOException exp){
+            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnZipTempFileToBackupFile")+": "+exp.getMessage(),exp);
+            return;
+        }finally{
+            IOUtil.closeStream(tZOStream);
+        }
+
+        tTimedTempZipFile.renameTo(tTimedBackupFile);
+        if(!ConfigManager.isDebug()){
+            tTimedTempZipFile.delete();
+            try{
+                FileUtil.clearDir(tTempDir);
+            }catch(IOException ignore){}
+        }
+        InvBack.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",InvBack.getJVMTime()-tStartTime+"ms"));
+    }
+    
+    /**
+     * 使用指定的玩家存档还原在线玩家数据
+     * @param pSender       请求发送者
+     * @param pTime         还原的时间
+     * @param pFromPlayer   数据来源玩家
+     * @param pToPlayer     要还原数据的玩家
+     */
+    public void restorePlayerData(CommandSender pSender,Date pTime,OfflinePlayer pFromPlayer,Player pToPlayer){
+        File tRestoreFile=new File(DataBackupAPI.getBackupDir(),this.getBackupFileNameFromDate(pTime));
+        if(!tRestoreFile.isFile()){
+            InvBack.warn(pSender,this.mPlugin.C("MsgBackupFileNotFound","%file%",tRestoreFile.getAbsolutePath()));
+            return;
+        }
+        this.restorePlayerData(pSender,tRestoreFile,pFromPlayer,pToPlayer);
+    }
+
+    /**
      * 使用指定的玩家存档还原在线玩家数据
      * @param pSender       请求发送者
      * @param pTime         还原的时间
@@ -148,36 +224,33 @@ public class DataManager extends AManager<InvBack>{
     }
 
     /**
-     * 使用指定的玩家存档还原在线玩家数据
-     * @param pSender       请求发送者
-     * @param pTime         还原的时间
-     * @param pFromPlayer   数据来源玩家
-     * @param pToPlayer     要还原数据的玩家
-     */
-    public void restorePlayerData(CommandSender pSender,Date pTime,OfflinePlayer pFromPlayer,Player pToPlayer){
-        File tRestoreFile=new File(DataBackupAPI.getBackupDir(),this.getBackupFileNameFromDate(pTime));
-        if(!tRestoreFile.isFile()){
-            InvBack.warn(pSender,this.mPlugin.C("MsgBackupFileNotFound","%file%",tRestoreFile.getAbsolutePath()));
-            return;
-        }
-        this.restorePlayerData(pSender,tRestoreFile,pFromPlayer,pToPlayer);
-    }
-
-    /**
      * 将在线玩家的数据保存到指定的玩家存档
      * @param pSender       请求发送者
      * @param pFromPlayer   数据来源
      * @param pToPlayer     要保存到的玩家
      */
     public void savePlayerData(CommandSender pSender,Player pFromPlayer,OfflinePlayer pToPlayer){
+        this.savePlayerData(pSender,null,pFromPlayer,pToPlayer);
+    }
+    
+    /**
+     * 将在线玩家的数据保存到指定的玩家存档
+     * @param pSender       请求发送者
+     * @param pSaveDir      保存到的位置
+     * @param pFromPlayer   数据来源
+     * @param pToPlayer     要保存到的玩家
+     */
+    public void savePlayerData(CommandSender pSender,File pSaveDir,Player pFromPlayer,OfflinePlayer pToPlayer){
         String tFromName=pSender==pFromPlayer?this.mPlugin.C("WordYou"):pFromPlayer.getName();
         GameMode tGameMode=pFromPlayer.getGameMode();
         if(tGameMode!=GameMode.SURVIVAL)
             pFromPlayer.setGameMode(GameMode.SURVIVAL);
 
+        if(pSaveDir!=null)
+            pSaveDir.mkdirs();
         for(IDataBackup sModel : DataBackupAPI.getInstance().getAllModels()){
             try{
-                sModel.saveTo(pSender,null,pFromPlayer,pToPlayer);
+                sModel.saveTo(pSender,pSaveDir,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
                 InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }

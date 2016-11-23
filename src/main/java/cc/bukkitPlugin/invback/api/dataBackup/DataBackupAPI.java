@@ -42,6 +42,8 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
         super(pPlugin);
 
         this.mPlugin.registerConfigModel(this);
+        this.mPlugin.getConfigManager().registerConfigModel(this);
+        
         this.register(new DB_VanillaData(this.mPlugin));
         this.register(new DB_Achievement(this.mPlugin));
         this.register(new DB_Baubles(this.mPlugin));
@@ -101,6 +103,7 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
 
     @Override
     protected void onModelSuccessRegister(IDataBackup pModel){
+        super.onModelSuccessRegister(pModel);
         synchronized(this){
             if(this.mInitStatus==0)
                 return;

@@ -9,12 +9,12 @@ import org.bukkit.command.CommandSender;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
-import cc.bukkitPlugin.util.JsonExtra;
-import cc.bukkitPlugin.util.JsonExtra.ClickAction;
-import cc.bukkitPlugin.util.JsonExtra.Color;
-import cc.bukkitPlugin.util.JsonExtra.HoverAction;
-import cc.bukkitPlugin.util.JsonExtra.Style;
 import cc.bukkitPlugin.util.plugin.command.TACommandBase;
+import cc.bukkitPlugin.util.tellraw.ClickAction;
+import cc.bukkitPlugin.util.tellraw.Color;
+import cc.bukkitPlugin.util.tellraw.HoverAction;
+import cc.bukkitPlugin.util.tellraw.JsonExtra;
+import cc.bukkitPlugin.util.tellraw.Style;
 
 public class CommandList extends TACommandBase<InvBack,CommandExc>{
 

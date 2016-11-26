@@ -128,7 +128,7 @@ public class CommandSet extends TACommandBase<InvBack,CommandExc>{
         case 3:
             Date tDate=null;
             try{
-                tDataMan.getFormatOfDay().parse(pArgs[1]);
+                tDate=tDataMan.getFormatOfDay().parse(pArgs[1]);
             }catch(ParseException pexp){
                 return subs;
             }

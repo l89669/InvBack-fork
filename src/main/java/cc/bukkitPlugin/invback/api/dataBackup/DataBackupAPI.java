@@ -118,6 +118,8 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
                 }
                 if(!pModel.addDefaultConfig(tSection)){
                     tModelSections.set(pModel.getName(),null);
+                }else{
+                    this.mPlugin.getConfigManager().saveConfig(null);
                 }
             }
             if(this.mInitStatus==2){

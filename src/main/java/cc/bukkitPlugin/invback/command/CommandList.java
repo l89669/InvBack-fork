@@ -9,12 +9,14 @@ import org.bukkit.command.CommandSender;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.plugin.command.TACommandBase;
-import cc.bukkitPlugin.util.tellraw.ClickAction;
+import cc.bukkitPlugin.util.tellraw.ChatStyle;
+import cc.bukkitPlugin.util.tellraw.ClickEvent;
 import cc.bukkitPlugin.util.tellraw.Color;
-import cc.bukkitPlugin.util.tellraw.HoverAction;
-import cc.bukkitPlugin.util.tellraw.JsonExtra;
-import cc.bukkitPlugin.util.tellraw.Style;
+import cc.bukkitPlugin.util.tellraw.Format;
+import cc.bukkitPlugin.util.tellraw.HoverEvent;
+import cc.bukkitPlugin.util.tellraw.Tellraw;
 
 public class CommandList extends TACommandBase<InvBack,CommandExc>{
 
@@ -63,17 +65,16 @@ public class CommandList extends TACommandBase<InvBack,CommandExc>{
             page=totalPage;
         send(pSender,String.format("========[%s]--[%d/%d]========",pArgs[0],page,totalPage));
 
-        JsonExtra extra=new JsonExtra(InvBack.getMsgPrefix()+"    ");
-        JsonExtra zipPack=new JsonExtra("",Color.blue);
-        zipPack.setStyle(Style.bold);
-        zipPack.setHoverEvent(HoverAction.show_text,C("MsgClickToGenerateCmd"));
+        Tellraw extra=Log.getMsgPrefixTellraw().addRawText("    ");
+        ChatStyle tStyle=new ChatStyle().setColor(Color.blue).setFormat(Format.bold).setHoverEvent(HoverEvent.Action.show_text,C("MsgClickToGenerateCmd"));
         for(int i=(page-1)*20;i<page*20&&i<backPackets.size();i++){
             String tName=backPackets.get(i).getName();
             int pos=tName.lastIndexOf('.');
             if(pos!=-1)
                 tName=tName.substring(0,pos);
-            zipPack.setText(String.format("%3d: %s",i+1,tName));
-            zipPack.setClickEvent(ClickAction.suggest_command,this.mMainCmdLabel+" set "+pSender.getName()+" "+pArgs[0]+" "+tName+" "+pSender.getName());
+            Tellraw zipPack=new Tellraw();
+            zipPack.addRawText(String.format("%3d: %s",i+1,tName));
+            zipPack.getChatStyle().copyFrom(tStyle).setClickEvent(ClickEvent.Action.suggest_command,this.mMainCmdLabel+" set "+pSender.getName()+" "+pArgs[0]+" "+tName+" "+pSender.getName());
             extra.clone().addExtra(zipPack).sendToPlayer(pSender);
         }
         return true;

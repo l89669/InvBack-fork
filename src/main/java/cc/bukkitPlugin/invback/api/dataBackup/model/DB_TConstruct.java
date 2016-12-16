@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.config.CommentedSection;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
@@ -54,7 +55,7 @@ public class DB_TConstruct extends ADB_CompressNBT{
             this.method_TPlayerStats_loadNBTData=tMethods.get(1-writeMethod);
         }catch(Exception exp){
             if(!(exp instanceof ClassNotFoundException))
-                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+                Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
             return false;
         }
         return true;

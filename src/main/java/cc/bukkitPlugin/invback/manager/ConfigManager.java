@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.bukkitPlugin.util.plugin.ABukkitPlugin;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.plugin.manager.fileManager.AConfigManager;
 
 public class ConfigManager extends AConfigManager<InvBack>{
@@ -27,7 +27,7 @@ public class ConfigManager extends AConfigManager<InvBack>{
     @Override
     public boolean reloadConfig(CommandSender pSender){
         if(!super.reloadConfig(pSender)){
-            ABukkitPlugin.severe(pSender,C("MsgErrorHappendWhenReloadConfig"));
+            Log.severe(pSender,C("MsgErrorHappendWhenReloadConfig"));
             return false;
         }
         this.checkUpdate();
@@ -44,9 +44,9 @@ public class ConfigManager extends AConfigManager<InvBack>{
         tPath=this.mConfig.getString("ServerDir",this.mServerDir.getAbsolutePath());
         this.mServerDir=new File(tPath);
 
-        ABukkitPlugin.info(pSender,C("MsgSetServerDir")+this.mServerDir.getAbsolutePath());
-        ABukkitPlugin.info(pSender,C("MsgSetDataBackupDir")+this.mBackupDir.getAbsolutePath());
-        InvBack.info(pSender,C("MsgConfigReloaded"));
+        Log.info(pSender,C("MsgSetServerDir")+this.mServerDir.getAbsolutePath());
+        Log.info(pSender,C("MsgSetDataBackupDir")+this.mBackupDir.getAbsolutePath());
+        Log.info(pSender,C("MsgConfigReloaded"));
         return this.saveConfig(null);
     }
 

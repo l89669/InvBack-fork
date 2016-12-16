@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
 import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.config.CommentedYamlConfig;
 import cc.bukkitPlugin.util.plugin.INeedClose;
 import cc.bukkitPlugin.util.plugin.INeedConfig;
@@ -84,25 +85,37 @@ public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedR
                 }
             }
         }catch(Throwable exp){
-            InvBack.severe("重置任务状态时发生了错误: "+exp.getMessage(),exp);
+            Log.severe("重置任务状态时发生了错误",exp);
         }
     }
 
     public boolean shouldRunTask(){
         synchronized(this){
-            return (InvBack.getJVMTime()-this.mLastRunUpTime)/1000>=this.mBackupInterval;
+            if(this.mLastRunUpTime>System.currentTimeMillis()){
+                this.mLastRunUpTime=System.currentTimeMillis();
+                return false;
+            }
+            return (System.currentTimeMillis()-this.mLastRunUpTime)/1000>=this.mBackupInterval;
         }
     }
 
     public boolean isTaskDelay(){
         synchronized(this){
-            return (InvBack.getJVMStartTime()+InvBack.getJVMUpTime()-this.mLastRunUpTime)/1000>=this.mBackupInterval*1.5;
+            if(this.mLastRunUpTime>System.currentTimeMillis()){
+                this.mLastRunUpTime=System.currentTimeMillis();
+                return false;
+            }
+            return (System.currentTimeMillis()-this.mLastRunUpTime)/1000>=this.mBackupInterval*1.5;
         }
     }
 
     public boolean isNewDay(){
         synchronized(this){
-            return new Date(InvBack.getJVMTime()).getDate()!=new Date(this.mLastRunUpTime).getDate();
+            if(this.mLastRunUpTime>System.currentTimeMillis()){
+                this.mLastRunUpTime=System.currentTimeMillis();
+                return false;
+            }
+            return new Date(System.currentTimeMillis()).getDate()!=new Date(this.mLastRunUpTime).getDate();
         }
     }
 
@@ -128,11 +141,11 @@ public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedR
     public void backupPlayerData(){
         DataManager tDataMan=this.mPlugin.getManager(DataManager.class);
         boolean doClean=this.isNewDay();
-        this.mLastRunUpTime=InvBack.getJVMTime();
+        this.mLastRunUpTime=System.currentTimeMillis();
         try{
             tDataMan.backup(null);
         }catch(Throwable exp){
-            InvBack.severe(this.mPlugin.C("MsgErrorOnBackupPlayeData")+": "+exp.getMessage(),exp);
+            Log.severe(this.mPlugin.C("MsgErrorOnBackupPlayeData"),exp);
         }
         if(doClean){
             tDataMan.clearExpriedBackup();

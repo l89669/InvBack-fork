@@ -17,10 +17,11 @@ import org.bukkit.entity.Player;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
+import cc.bukkitPlugin.util.ClassUtil;
 import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.Function;
 import cc.bukkitPlugin.util.IOUtil;
-import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.config.CommentedSection;
 
@@ -57,7 +58,7 @@ public class DB_Achievement extends ADB_CompressNBT{
             
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException))
-                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+                Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
             return false;
         }
         return true;
@@ -122,7 +123,7 @@ public class DB_Achievement extends ADB_CompressNBT{
         String tZipEntrySuffix=this.getPlayerFileName(pFromPlayer);
         ZipEntry tEntry=pBackupData.getEntry(this.getName()+File.separator+tZipEntrySuffix);
         if(tEntry==null){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
         }else{
             this.loadDataFromStream(pSender,pBackupData.getInputStream(tEntry),pToPlayer);
         }
@@ -137,7 +138,7 @@ public class DB_Achievement extends ADB_CompressNBT{
         File tLoadDir=pLoadDir==null?this.mDataDir:pLoadDir;
         File tLoadFile=new File(tLoadDir,this.getPlayerFileName(pFromPlayer));
         if(!tLoadFile.isFile()){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
         }else{
             this.loadDataFromStream(pSender,new FileInputStream(tLoadFile),pToPlayer);
         }

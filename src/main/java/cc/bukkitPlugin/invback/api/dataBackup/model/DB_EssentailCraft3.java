@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
 
@@ -33,7 +34,7 @@ public class DB_EssentailCraft3 extends ADB_CompressNBT{
             this.method_IPlayerData_writeToNBTTagCompound=ClassUtil.getMethod(tClazz,"writeToNBTTagCompound",NMSUtil.clazz_NBTTagCompound);
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException))
-                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+                Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
             return false;
         }
         return true;

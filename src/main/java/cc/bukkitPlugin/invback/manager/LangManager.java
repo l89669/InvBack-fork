@@ -3,7 +3,7 @@ package cc.bukkitPlugin.invback.manager;
 import org.bukkit.command.CommandSender;
 
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.plugin.ABukkitPlugin;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.plugin.manager.fileManager.TLangManager;
 
 public class LangManager extends TLangManager<InvBack>{
@@ -19,13 +19,13 @@ public class LangManager extends TLangManager<InvBack>{
     @Override
     public boolean reloadConfig(CommandSender pSender){
         if(!super.reloadConfig(pSender)){
-            ABukkitPlugin.warn(pSender,C("MsgErrorHappendWhenReloadLang"));
+            Log.warn(pSender,C("MsgErrorHappendWhenReloadLang"));
             return false;
         }
         this.checkUpdate();
         this.addDefaults();
         boolean result=this.saveConfig(null);
-        ABukkitPlugin.info(pSender,C("MsgLangReloaded"));
+        Log.info(pSender,C("MsgLangReloaded"));
         return result;
     }
 

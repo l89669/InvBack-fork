@@ -11,6 +11,7 @@ import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
 import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
 import thaumcraft.api.research.ResearchCategories;
@@ -65,7 +66,7 @@ public class DB_ThaumCraft extends ADB_CompressNBT{
             this.method_ResearchManager_completeResearch=tClazz.getDeclaredMethod("completeResearch",NMSUtil.clazz_EntityPlayer,String.class);
         }catch(Exception exp){
             if(!(exp instanceof ClassNotFoundException)&&!(exp instanceof NoSuchMethodException))
-                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+                Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
             return false;
         }
         return true;

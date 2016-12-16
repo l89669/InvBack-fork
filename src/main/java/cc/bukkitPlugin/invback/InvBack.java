@@ -14,11 +14,7 @@ public class InvBack extends ABukkitPlugin<InvBack>{
     private CommandExc mCmdExc;
     private DataManager mDataManager;
     private TaskExec mTaskExec;
-    
-    public InvBack(){
-        super("InvBack");
-    }
-    
+
     @Override
     public void onEnable(){
         //注册管理器

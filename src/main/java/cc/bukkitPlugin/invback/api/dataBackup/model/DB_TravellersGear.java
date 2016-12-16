@@ -21,6 +21,7 @@ import cc.bukkitPlugin.invback.api.dataBackup.DataBackupAPI;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
 import cc.bukkitPlugin.util.ClassUtil;
 import cc.bukkitPlugin.util.FileUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.config.CommentedSection;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
@@ -71,7 +72,7 @@ public class DB_TravellersGear extends ADataBackup{
 
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException)&&!(exp instanceof NoSuchMethodException))
-                InvBack.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
+                Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
             return false;
         }
         return true;
@@ -118,7 +119,7 @@ public class DB_TravellersGear extends ADataBackup{
         }else{
             File tCopySource=new File(this.mDataDir,this.mFileName);
             if(!tCopySource.isFile()){
-                InvBack.warn(pSender,this.mPlugin.C("MsgModelDataFileNotExist",new String[]{"%model%","%file%"},this.getDescription(),tCopySource.getAbsolutePath()));
+                Log.warn(pSender,this.mPlugin.C("MsgModelDataFileNotExist",new String[]{"%model%","%file%"},this.getDescription(),tCopySource.getAbsolutePath()));
                 return false;
             }
             FileUtil.copyFile(tCopySource,tTargetFile);
@@ -155,7 +156,7 @@ public class DB_TravellersGear extends ADataBackup{
 
         ZipEntry tEntry=pBackupData.getEntry(this.mFileName);
         if(tEntry==null){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupZipDataNoEntry",new String[]{"%modle%","%file%"},this.getDescription(),this.mFileName));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupZipDataNoEntry",new String[]{"%modle%","%file%"},this.getDescription(),this.mFileName));
         }else{
             InputStream tIStream=null;
             try{

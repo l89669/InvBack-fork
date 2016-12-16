@@ -28,6 +28,7 @@ import cc.bukkitPlugin.invback.api.dataBackup.IDataBackup;
 import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.Function;
 import cc.bukkitPlugin.util.IOUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.StringUtil;
 import cc.bukkitPlugin.util.plugin.manager.AManager;
 
@@ -66,19 +67,19 @@ public class DataManager extends AManager<InvBack>{
      * @param pSender       请求发送者
      */
     synchronized public void backup(CommandSender pSender){
-        InvBack.send(pSender,this.mPlugin.C("MsgStartBackup"));
-        long tStartTime=InvBack.getJVMTime();
+        Log.send(pSender,this.mPlugin.C("MsgStartBackup"));
+        long tStartTime=System.currentTimeMillis();
         File tTempDir=new File(DataBackupAPI.getBackupDir(),"temp"+File.separator);
 
         try{
             FileUtil.clearDir(tTempDir);
         }catch(IOException exp){
-            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
+            Log.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
         }
         if(!tTempDir.isDirectory())
             tTempDir.mkdirs();
 
-        Date tBackTime=new Date(InvBack.getJVMTime());
+        Date tBackTime=new Date(System.currentTimeMillis());
         boolean tEnableReplace=DataBackupAPI.isReplaceFileDataWithOnlineData();
         for(IDataBackup sModel : DataBackupAPI.getInstance().getAllModels()){
             try{
@@ -86,12 +87,12 @@ public class DataManager extends AManager<InvBack>{
                 tModleTempDir.mkdir();
                 sModel.backup(pSender,tModleTempDir,tEnableReplace);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
         if(Function.isEmpty(tTempDir.list())){
-            InvBack.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
+            Log.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
             return;
         }
         String tTimedBackupFileName=this.getBackupFileNameFromDate(tBackTime);
@@ -103,7 +104,7 @@ public class DataManager extends AManager<InvBack>{
             tZOStream=new ZipOutputStream(new FileOutputStream(tTimedTempZipFile));
             FileUtil.zipFileAndDir(tZOStream,tTempDir,false);
         }catch(IOException exp){
-            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnZipTempFileToBackupFile")+": "+exp.getMessage(),exp);
+            Log.severe(pSender,this.mPlugin.C("MsgErrorOnZipTempFileToBackupFile")+": "+exp.getMessage(),exp);
             return;
         }finally{
             IOUtil.closeStream(tZOStream);
@@ -116,7 +117,7 @@ public class DataManager extends AManager<InvBack>{
                 FileUtil.clearDir(tTempDir);
             }catch(IOException ignore){}
         }
-        InvBack.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",InvBack.getJVMTime()-tStartTime+"ms"));
+        Log.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",System.currentTimeMillis()-tStartTime+"ms"));
     }
 
     /**
@@ -124,30 +125,30 @@ public class DataManager extends AManager<InvBack>{
      * @param pSender       请求发送者
      */
     public void backup(CommandSender pSender,String pSubDir,OfflinePlayer pTargetPlayer){
-        long tStartTime=InvBack.getJVMTime();
+        long tStartTime=System.currentTimeMillis();
         File tTempDir=new File(DataBackupAPI.getBackupDir(),"tempplayer"+File.separator);
 
         try{
             FileUtil.clearDir(tTempDir);
         }catch(IOException exp){
-            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
+            Log.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
         }
         if(!tTempDir.isDirectory())
             tTempDir.mkdirs();
 
-        Date tBackTime=new Date(InvBack.getJVMTime());
+        Date tBackTime=new Date(System.currentTimeMillis());
         for(IDataBackup sModel : DataBackupAPI.getInstance().getAllModels()){
             try{
                 File tModleTempDir=new File(tTempDir,sModel.getName());
                 tModleTempDir.mkdir();
                 sModel.backup(pSender,tModleTempDir,pTargetPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
         if(Function.isEmpty(tTempDir.list())){
-            InvBack.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
+            Log.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
             return;
         }
         String tTimedBackupFileName=this.getBackupFileNameFromDate(tBackTime);
@@ -162,7 +163,7 @@ public class DataManager extends AManager<InvBack>{
             tZOStream=new ZipOutputStream(new FileOutputStream(tTimedTempZipFile));
             FileUtil.zipFileAndDir(tZOStream,tTempDir,false);
         }catch(IOException exp){
-            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnZipTempFileToBackupFile")+": "+exp.getMessage(),exp);
+            Log.severe(pSender,this.mPlugin.C("MsgErrorOnZipTempFileToBackupFile")+": "+exp.getMessage(),exp);
             return;
         }finally{
             IOUtil.closeStream(tZOStream);
@@ -175,7 +176,7 @@ public class DataManager extends AManager<InvBack>{
                 FileUtil.clearDir(tTempDir);
             }catch(IOException ignore){}
         }
-        InvBack.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",InvBack.getJVMTime()-tStartTime+"ms"));
+        Log.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",System.currentTimeMillis()-tStartTime+"ms"));
     }
     
     /**
@@ -188,7 +189,7 @@ public class DataManager extends AManager<InvBack>{
     public void restorePlayerData(CommandSender pSender,Date pTime,OfflinePlayer pFromPlayer,Player pToPlayer){
         File tRestoreFile=new File(DataBackupAPI.getBackupDir(),this.getBackupFileNameFromDate(pTime));
         if(!tRestoreFile.isFile()){
-            InvBack.warn(pSender,this.mPlugin.C("MsgBackupFileNotFound","%file%",tRestoreFile.getAbsolutePath()));
+            Log.warn(pSender,this.mPlugin.C("MsgBackupFileNotFound","%file%",tRestoreFile.getAbsolutePath()));
             return;
         }
         this.restorePlayerData(pSender,tRestoreFile,pFromPlayer,pToPlayer);
@@ -206,7 +207,7 @@ public class DataManager extends AManager<InvBack>{
         try{
             tZipFile=new ZipFile(pRestoreFile);
         }catch(IOException exp){
-            InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnOpenZipFile","%file%",pRestoreFile.getAbsolutePath())+": "+exp.getMessage(),exp);
+            Log.severe(pSender,this.mPlugin.C("MsgErrorOnOpenZipFile","%file%",pRestoreFile.getAbsolutePath())+": "+exp.getMessage(),exp);
             return;
         }
         GameMode tGameMode=pToPlayer.getGameMode();
@@ -214,13 +215,13 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.restore(pSender,tZipFile,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelRestoreData","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelRestoreData","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
         if(this.mPlugin.getConfigManager().isKeepGameModeWhenRollBack()&&tGameMode!=pToPlayer.getGameMode())
             pToPlayer.setGameMode(tGameMode);
-        InvBack.send(pSender,this.mPlugin.C("MsgPlayerDataRestore",new String[]{"%fromplayer%","%toplayer%"},pFromPlayer.getName(),pToPlayer.getName()));
+        Log.send(pSender,this.mPlugin.C("MsgPlayerDataRestore",new String[]{"%fromplayer%","%toplayer%"},pFromPlayer.getName(),pToPlayer.getName()));
     }
 
     /**
@@ -252,16 +253,16 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.saveTo(pSender,pSaveDir,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
         if(tGameMode!=pFromPlayer.getGameMode())
             pFromPlayer.setGameMode(tGameMode);
         if(pFromPlayer==pToPlayer){
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadySavePlayerDataToFile","%toplayer%",tFromName));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadySavePlayerDataToFile","%toplayer%",tFromName));
         }else{
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadySaveOtherPlayerDataToPlayerFile",new String[]{"%fromplayer%","%toplayer%"},tFromName,pToPlayer.getName()));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadySaveOtherPlayerDataToPlayerFile",new String[]{"%fromplayer%","%toplayer%"},tFromName,pToPlayer.getName()));
         }
     }
 
@@ -280,13 +281,13 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.loadFrom(pSender,null,pToPlayer,pFromPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromFile",new String[]{"%modle%","%player%"},sModel.getDescription(),tFromName)+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromFile",new String[]{"%modle%","%player%"},sModel.getDescription(),tFromName)+": "+exp.getMessage(),exp);
             }
         }
 
         if(this.mPlugin.getConfigManager().isKeepGameModeWhenRollBack()&&tGameMode!=pToPlayer.getGameMode())
             pToPlayer.setGameMode(tGameMode);
-        InvBack.send(pSender,this.mPlugin.C("MsgAlreadyLoadPlayerDataFromFile",new String[]{"%fromplayer%","%toplayer%"},tFromName,tToName));
+        Log.send(pSender,this.mPlugin.C("MsgAlreadyLoadPlayerDataFromFile",new String[]{"%fromplayer%","%toplayer%"},tFromName,tToName));
     }
 
     /**
@@ -303,13 +304,13 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.saveToMemoryMap(pSender,pFromPlayer,tMemoryData);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
         this.mMemoryInvBackup.put(pFromPlayer.getUniqueId(),tMemoryData);
 
         if(pNotify){
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadySavePlayerDataToMemory","%player%",tPlayerName));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadySavePlayerDataToMemory","%player%",tPlayerName));
         }
     }
 
@@ -323,7 +324,7 @@ public class DataManager extends AManager<InvBack>{
         String tPlayerName=pSender==pToPlayer?this.mPlugin.C("WordYou"):pToPlayer.getName();
         Map<Object,Object> tMemoryData=this.mMemoryInvBackup.get(pToPlayer.getUniqueId());
         if(tMemoryData==null){
-            InvBack.warn(pSender,this.mPlugin.C("MsgNoMemoryDataForPlayer","%player%",tPlayerName));
+            Log.warn(pSender,this.mPlugin.C("MsgNoMemoryDataForPlayer","%player%",tPlayerName));
             return;
         }
 
@@ -331,12 +332,12 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.loadFromMemoryMap(pSender,pToPlayer,tMemoryData);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pToPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pToPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
         if(pNotify){
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadyLoadPlayerDataFromMemory","%player%",tPlayerName));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadyLoadPlayerDataFromMemory","%player%",tPlayerName));
         }
     }
 
@@ -355,16 +356,16 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.copy(pSender,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelCopyPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelCopyPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
         if(this.mPlugin.getConfigManager().isKeepGameModeWhenRollBack()&&tGameMode!=pToPlayer.getGameMode())
             pToPlayer.setGameMode(tGameMode);
         if(pSender==pToPlayer){
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadyCopyed","%player%",pFromPlayer.getName()));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadyCopyed","%player%",pFromPlayer.getName()));
         }else{
-            InvBack.send(pSender,this.mPlugin.C("MsgAlreadyCopyedForPlayer",new String[]{"%fromplayer%","%toplayer%"},tFromName,tToName));
+            Log.send(pSender,this.mPlugin.C("MsgAlreadyCopyedForPlayer",new String[]{"%fromplayer%","%toplayer%"},tFromName,tToName));
         }
     }
 
@@ -381,13 +382,13 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.reset(pSender,pTargetPlayer);
             }catch(Throwable exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelResetPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pTargetPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelResetPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pTargetPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
         if(this.mPlugin.getConfigManager().isKeepGameModeWhenRollBack()&&tGameMode!=pTargetPlayer.getGameMode())
             pTargetPlayer.setGameMode(tGameMode);
-        InvBack.send(pSender,this.mPlugin.C("MsgAlreadyResetPlayerData","%player%",tPlayerName));
+        Log.send(pSender,this.mPlugin.C("MsgAlreadyResetPlayerData","%player%",tPlayerName));
     }
 
     public void clearExpriedBackup(){
@@ -421,7 +422,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 FileUtil.deleteFile(new File(tBackupDir,sDirName));
             }catch(IOException exp){
-                InvBack.severe(this.mPlugin.C("MsgErrorOnClearExpriedBackup")+": "+exp.getMessage(),exp);
+                Log.severe(this.mPlugin.C("MsgErrorOnClearExpriedBackup"),exp);
             }
             deleteDirCount--;
         }
@@ -479,9 +480,9 @@ public class DataManager extends AManager<InvBack>{
         int tNumb=this.mMemoryInvBackup.size();
         this.mMemoryInvBackup.clear();
         if(tNumb==0){
-            InvBack.send(pSender,this.mPlugin.C("MsgNoMemoryBackupDataClear"));
+            Log.send(pSender,this.mPlugin.C("MsgNoMemoryBackupDataClear"));
         }else{
-            InvBack.send(pSender,this.mPlugin.C("MsgMemoryBackupDataCleared","%numb%",tNumb));
+            Log.send(pSender,this.mPlugin.C("MsgMemoryBackupDataCleared","%numb%",tNumb));
         }
     }
 

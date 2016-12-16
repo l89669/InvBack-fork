@@ -18,9 +18,10 @@ import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
 import cc.bukkitPlugin.util.CCBukkit;
+import cc.bukkitPlugin.util.ClassUtil;
 import cc.bukkitPlugin.util.FileUtil;
 import cc.bukkitPlugin.util.IOUtil;
-import cc.bukkitPlugin.util.ClassUtil;
+import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.config.CommentedSection;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
 
@@ -107,7 +108,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
                         tBackedFile.add(this.getPlayerFileName(sPlayer).toLowerCase());
                     }
                 }catch(Throwable exp){
-                    InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%model%","%player%"},this.getDescription(),sPlayer.getName())+": "+exp.getMessage(),exp);
+                    Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%model%","%player%"},this.getDescription(),sPlayer.getName())+": "+exp.getMessage(),exp);
                 }
             }
         }
@@ -123,7 +124,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
             try{
                 FileUtil.copyFile(sPlayerDataFile,new File(pTargetDir,sPlayerDataFile.getName()));
             }catch(IOException exp){
-                InvBack.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupCopyFile","%model%","this.getDescription()")+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupCopyFile","%model%","this.getDescription()")+": "+exp.getMessage(),exp);
             }
         }
         return true;
@@ -133,7 +134,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
     public boolean backup(CommandSender pSender,File pTargetDir,OfflinePlayer pTargetPlayer) throws IOException{
         File tDataFile=new File(this.mDataDir,this.getPlayerFileName(pTargetPlayer));
         if(!tDataFile.isFile()){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pTargetPlayer.getName()));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pTargetPlayer.getName()));
         }
         File tSaveFile=new File(pTargetDir,this.getPlayerFileName(pTargetPlayer));
         FileInputStream tFIPStream=null;
@@ -160,7 +161,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
             tEntry=pBackupData.getEntry(tZipEntrySuffix);
         }
         if(tEntry==null){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
         }else{
             this.loadDataFromStream(pSender,pBackupData.getInputStream(tEntry),pToPlayer);
         }
@@ -199,7 +200,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
         File tLoadDir=pLoadDir==null?this.mDataDir:pLoadDir;
         File tLoadFile=new File(tLoadDir,this.getPlayerFileName(pFromPlayer));
         if(!tLoadFile.isFile()){
-            InvBack.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+            Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
         }else{
             this.loadDataFromStream(pSender,new FileInputStream(tLoadFile),pToPlayer);
         }

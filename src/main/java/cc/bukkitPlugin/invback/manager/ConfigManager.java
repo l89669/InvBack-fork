@@ -47,6 +47,7 @@ public class ConfigManager extends AConfigManager<InvBack>{
         Log.info(pSender,C("MsgSetServerDir")+this.mServerDir.getAbsolutePath());
         Log.info(pSender,C("MsgSetDataBackupDir")+this.mBackupDir.getAbsolutePath());
         Log.info(pSender,C("MsgConfigReloaded"));
+        this.reloadModles(pSender);
         return this.saveConfig(null);
     }
 
@@ -67,12 +68,8 @@ public class ConfigManager extends AConfigManager<InvBack>{
 
     public void addDefaults(){
         super.addDefaults();
-        this.mConfig.addDefault("BackupDir","back"+File.separator,"玩家个人数据备份位置","相对路径默认在插件文件夹下,也可以设置绝对路径");
-        this.mConfig.addDefault("BackupInterval",900,"多少秒备份一次玩家数据");
-        this.mConfig.addDefault("BackupExpriedDays",7,"玩家备份数据最长保留天数");
         this.mConfig.addDefault("KeepGameModeWhenRollBack",true,"在使用copy,set,rollback命令时保持还原数据前的游戏模式");
         this.mConfig.addDefault("ReplaceFileDataWithOnlineData",true,"如果对应的玩家在线,使用内存中的数据进行备份,而非模块对应的存档文件","启用此项可以比较实时的备份玩家数据");
-        this.mConfig.addDefault("RemoveDataWhenPlayerQuit",true,"在玩家退出游戏时,清理该玩家在内存中的备份数据");
     }
 
     public File getBackupDir(){

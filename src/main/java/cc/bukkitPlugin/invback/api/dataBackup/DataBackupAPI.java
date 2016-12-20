@@ -17,11 +17,10 @@ import cc.bukkitPlugin.invback.api.dataBackup.model.DB_VanillaData;
 import cc.bukkitPlugin.invback.manager.ConfigManager;
 import cc.bukkitPlugin.util.config.CommentedSection;
 import cc.bukkitPlugin.util.config.CommentedYamlConfig;
-import cc.bukkitPlugin.util.plugin.INeedConfig;
 import cc.bukkitPlugin.util.plugin.manager.apiManager.AAPIRegisterManager;
 import cc.bukkitPlugin.util.plugin.manager.fileManager.IConfigModel;
 
-public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> implements INeedConfig,IConfigModel{
+public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> implements IConfigModel{
 
     public static final String SEC_CFG_MAIN="Models";
     private static DataBackupAPI mInstance;
@@ -41,9 +40,8 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
     private DataBackupAPI(InvBack pPlugin){
         super(pPlugin);
 
-        this.mPlugin.registerConfigModel(this);
         this.mPlugin.getConfigManager().registerConfigModel(this);
-        
+
         this.register(new DB_VanillaData(this.mPlugin));
         this.register(new DB_Achievement(this.mPlugin));
         this.register(new DB_Baubles(this.mPlugin));
@@ -62,8 +60,7 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
 
     @Override
     public void addDefaults(CommentedYamlConfig pConfig){
-        CommentedYamlConfig tConfig=this.mPlugin.getConfigManager().getConfig();
-        CommentedSection tModelSections=tConfig.getOrCreateSection(DataBackupAPI.SEC_CFG_MAIN,"各个数据备份模块配置");
+        CommentedSection tModelSections=pConfig.getOrCreateSection(DataBackupAPI.SEC_CFG_MAIN,"各个数据备份模块配置");
         for(IDataBackup sModel : DataBackupAPI.getInstance().getAllModels()){
             CommentedSection tSection=tModelSections.getSection(sModel.getName());
             if(tSection==null){
@@ -73,26 +70,27 @@ public class DataBackupAPI extends AAPIRegisterManager<InvBack,IDataBackup> impl
                 tModelSections.set(sModel.getName(),null);
             }
         }
+        pConfig.addDefault("BackupDir","back"+File.separator,"玩家个人数据备份位置","相对路径默认在插件文件夹下,也可以设置绝对路径");
+        pConfig.addDefault("BackupExpriedDays",7,"玩家备份数据最长保留天数");
         synchronized(this){
             this.mInitStatus=1;
         }
     }
 
     @Override
-    public void setConfig(CommandSender pSender){
+    public void setConfig(CommandSender pSender,CommentedYamlConfig pConfig){
         ConfigManager configMan=this.mPlugin.getConfigManager();
         this.mFileNameMode=configMan.getFileNameMode();
         this.mBackupDir=configMan.getBackupDir();
         this.mServerDir=configMan.getServerDir();
 
-        CommentedYamlConfig tConfig=configMan.getConfig();
-        this.mBackupExpriedDays=tConfig.getInt("BackupExpriedDays",this.mBackupExpriedDays);
-        this.mReplaceFileDataWithOnlineData=tConfig.getBoolean("ReplaceFileDataWithOnlineData");
+        this.mBackupExpriedDays=pConfig.getInt("BackupExpriedDays",this.mBackupExpriedDays);
+        this.mReplaceFileDataWithOnlineData=pConfig.getBoolean("ReplaceFileDataWithOnlineData");
 
         if(this.mBackupExpriedDays<=0)
             this.mBackupExpriedDays=7;
 
-        CommentedSection tModelSections=tConfig.getOrCreateSection(DataBackupAPI.SEC_CFG_MAIN,"各个数据备份模块配置");
+        CommentedSection tModelSections=pConfig.getOrCreateSection(DataBackupAPI.SEC_CFG_MAIN,"各个数据备份模块配置");
         for(IDataBackup sModel : this.getAllModels()){
             sModel.reloadConfig(pSender,tModelSections.getSection(sModel.getName()));
         }

@@ -15,10 +15,10 @@ import cc.bukkitPlugin.util.ClassUtil;
 import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.config.CommentedYamlConfig;
 import cc.bukkitPlugin.util.plugin.INeedClose;
-import cc.bukkitPlugin.util.plugin.INeedConfig;
 import cc.bukkitPlugin.util.plugin.INeedReload;
+import cc.bukkitPlugin.util.plugin.manager.fileManager.IConfigModel;
 
-public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedReload{
+public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeedReload{
 
     private InvBack mPlugin;
     /**最后一次运行的时间*/
@@ -31,9 +31,9 @@ public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedR
     public TaskExec(InvBack pPlugin){
         this.mPlugin=pPlugin;
 
-        this.mPlugin.registerConfigModel(this);
         this.mPlugin.registerCloseModel(this);
         this.mPlugin.registerReloadModel(this);
+        this.mPlugin.getConfigManager().registerConfigModel(this);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this.mPlugin,new Runnable(){
 
@@ -63,11 +63,15 @@ public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedR
         }
         return true;
     }
+
+    @Override
+    public void addDefaults(CommentedYamlConfig pConfig){
+        pConfig.addDefault("BackupInterval",this.mBackupInterval,"多少秒备份一次玩家数据");
+    }
     
     @Override
-    public void setConfig(CommandSender pSender){
-        CommentedYamlConfig tConfig=this.mPlugin.getConfigManager().getConfig();
-        this.mBackupInterval=tConfig.getInt("BackupInterval",this.mBackupInterval);
+    public void setConfig(CommandSender pSender,CommentedYamlConfig pConfig){
+        this.mBackupInterval=pConfig.getInt("BackupInterval",this.mBackupInterval);
         if(this.mBackupInterval<=0)
             this.mBackupInterval=900;
     }
@@ -151,5 +155,4 @@ public class TaskExec extends TimerTask implements INeedConfig,INeedClose,INeedR
             tDataMan.clearExpriedBackup();
         }
     }
-
 }

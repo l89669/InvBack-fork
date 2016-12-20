@@ -2,28 +2,32 @@ package cc.bukkitPlugin.invback.listener;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.util.config.CommentedYamlConfig;
-import cc.bukkitPlugin.util.plugin.INeedConfig;
+import cc.bukkitPlugin.util.plugin.AListener;
+import cc.bukkitPlugin.util.plugin.manager.fileManager.IConfigModel;
 
-public class PlayerListner implements Listener,INeedConfig{
+public class PlayerListner extends AListener<InvBack> implements IConfigModel{
 
-    private InvBack mPlugin;
     private boolean mClearMemoryDataWherPlayerQuit=true;
 
     public PlayerListner(InvBack pPlugin){
-        this.mPlugin=pPlugin;
-        this.mPlugin.getServer().getPluginManager().registerEvents(this,this.mPlugin);
+        super(pPlugin);
+
+        this.mPlugin.getConfigManager().registerConfigModel(this);
     }
 
     @Override
-    public void setConfig(CommandSender pSender){
-        CommentedYamlConfig tConfig=this.mPlugin.getConfigManager().getConfig();
-        this.mClearMemoryDataWherPlayerQuit=tConfig.getBoolean("ClearMemoryDataWhenPlayerQuit");
+    public void addDefaults(CommentedYamlConfig pConfig){
+        pConfig.addDefault("RemoveDataWhenPlayerQuit",this.mClearMemoryDataWherPlayerQuit,"在玩家退出游戏时,清理该玩家在内存中的备份数据");
+    }
+
+    @Override
+    public void setConfig(CommandSender pSender,CommentedYamlConfig pConfig){
+        this.mClearMemoryDataWherPlayerQuit=pConfig.getBoolean("RemoveDataWhenPlayerQuit",this.mClearMemoryDataWherPlayerQuit);
     }
 
     @EventHandler(ignoreCancelled=true)
@@ -32,10 +36,9 @@ public class PlayerListner implements Listener,INeedConfig{
             return;
         this.mPlugin.getDataManager().removePlayerDataFromMemony(pEvent.getPlayer());
     }
-    
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent pEvent){
-        
-    }
 
+    }
 }

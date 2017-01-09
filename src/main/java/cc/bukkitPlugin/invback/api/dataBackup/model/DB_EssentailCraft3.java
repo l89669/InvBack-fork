@@ -11,13 +11,12 @@ import cc.bukkitPlugin.util.Log;
 import cc.bukkitPlugin.util.NMSUtil;
 import cc.bukkitPlugin.util.nbt.NBTUtil;
 
-
 public class DB_EssentailCraft3 extends ADB_CompressNBT{
 
     private Method method_ApiCore_getPlayerData;
     private Method method_IPlayerData_readFromNBTTagCompound;
     private Method method_IPlayerData_writeToNBTTagCompound;
-    
+
     public DB_EssentailCraft3(InvBack pPlugin){
         super(pPlugin,"源质魔法数据备份");
     }
@@ -53,17 +52,19 @@ public class DB_EssentailCraft3 extends ADB_CompressNBT{
     private Object getPlayerData(Player pPlayer){
         return ClassUtil.invokeStaticMethod(this.method_ApiCore_getPlayerData,NMSUtil.getNMSPlayer(pPlayer));
     }
-    
+
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
-        return ClassUtil.invokeMethod(this.getPlayerData(pFromPlayer),this.method_IPlayerData_writeToNBTTagCompound,NBTUtil.newNBTTagCompound());
+        Object tSaveTag=NBTUtil.newNBTTagCompound();
+        ClassUtil.invokeMethod(this.getPlayerData(pFromPlayer),this.method_IPlayerData_writeToNBTTagCompound,tSaveTag);
+        return tSaveTag;
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         ClassUtil.invokeMethod(this.getPlayerData(pToPlayer),this.method_IPlayerData_readFromNBTTagCompound,pNBT);
     }
-    
+
     @Override
     public boolean reset(CommandSender pSender,Player pTargetPlayer){
         this.loadDataFromNBT(pTargetPlayer,NBTUtil.newNBTTagCompound());

@@ -87,7 +87,7 @@ public class DataManager extends AManager<InvBack>{
                 tModleTempDir.mkdir();
                 sModel.backup(pSender,tModleTempDir,tEnableReplace);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%model%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -143,7 +143,7 @@ public class DataManager extends AManager<InvBack>{
                 tModleTempDir.mkdir();
                 sModel.backup(pSender,tModleTempDir,pTargetPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupFile","%model%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -215,7 +215,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.restore(pSender,tZipFile,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelRestoreData","%modle%",sModel.getDescription())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelRestoreData","%model%",sModel.getDescription())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -253,7 +253,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.saveTo(pSender,pSaveDir,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToFile",new String[]{"%model%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -281,7 +281,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.loadFrom(pSender,null,pToPlayer,pFromPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromFile",new String[]{"%modle%","%player%"},sModel.getDescription(),tFromName)+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromFile",new String[]{"%model%","%player%"},sModel.getDescription(),tFromName)+": "+exp.getMessage(),exp);
             }
         }
 
@@ -304,7 +304,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.saveToMemoryMap(pSender,pFromPlayer,tMemoryData);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelSavePlayerDataToMemory",new String[]{"%model%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
         this.mMemoryInvBackup.put(pFromPlayer.getUniqueId(),tMemoryData);
@@ -332,7 +332,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.loadFromMemoryMap(pSender,pToPlayer,tMemoryData);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromMemory",new String[]{"%modle%","%player%"},sModel.getDescription(),pToPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelLoadPlayerDataFromMemory",new String[]{"%model%","%player%"},sModel.getDescription(),pToPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -356,7 +356,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.copy(pSender,pFromPlayer,pToPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelCopyPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelCopyPlayerData",new String[]{"%model%","%player%"},sModel.getDescription(),pFromPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 
@@ -382,7 +382,7 @@ public class DataManager extends AManager<InvBack>{
             try{
                 sModel.reset(pSender,pTargetPlayer);
             }catch(Throwable exp){
-                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelResetPlayerData",new String[]{"%modle%","%player%"},sModel.getDescription(),pTargetPlayer.getName())+": "+exp.getMessage(),exp);
+                Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelResetPlayerData",new String[]{"%model%","%player%"},sModel.getDescription(),pTargetPlayer.getName())+": "+exp.getMessage(),exp);
             }
         }
 

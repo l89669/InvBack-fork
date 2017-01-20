@@ -175,7 +175,7 @@ public class DB_Achievement extends ADB_CompressNBT{
         if(tObj instanceof String){
             this.loadDataFromString(pToPlayer,(String)tObj);
         }
-        return super.loadFromMemoryMap(pSender,pToPlayer,pMemoryData);
+        return true;
     }
 
     @Override

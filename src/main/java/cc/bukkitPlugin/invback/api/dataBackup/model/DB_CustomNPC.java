@@ -48,7 +48,13 @@ public class DB_CustomNPC extends ADB_CompressNBT{
                 
             tClazz=Class.forName("noppes.npcs.controllers.PlayerData");
             this.method_PlayerData_getNBT=ClassUtil.getMethod(tClazz,"getNBT");
-            this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NMSUtil.clazz_NBTTagCompound);
+            Method tMethod=null;
+            if(ClassUtil.isMethodExist(tClazz,"readNBT",void.class,NMSUtil.clazz_NBTTagCompound)){
+                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NMSUtil.clazz_NBTTagCompound);
+            }else{
+                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"setNBT",NMSUtil.clazz_NBTTagCompound);
+            }
+            
             for(Field sField : tClazz.getDeclaredFields()){
                 if(ClassUtil.isMethodExist(sField.getType(),"loadNBTData")){
                     ArrayList<Field> tFields=new ArrayList<>();

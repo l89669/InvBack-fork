@@ -2,9 +2,9 @@ package cc.bukkitPlugin.invback.manager;
 
 import org.bukkit.command.CommandSender;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.plugin.manager.fileManager.TLangManager;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.plugin.manager.fileManager.TLangManager;
 
 public class LangManager extends TLangManager<InvBack>{
 

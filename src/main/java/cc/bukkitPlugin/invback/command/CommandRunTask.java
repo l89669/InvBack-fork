@@ -5,8 +5,8 @@ import java.util.HashSet;
 
 import org.bukkit.command.CommandSender;
 
+import cc.bukkitPlugin.commons.plugin.command.TACommandBase;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.plugin.command.TACommandBase;
 
 public class CommandRunTask extends TACommandBase<InvBack,CommandExc>{
 

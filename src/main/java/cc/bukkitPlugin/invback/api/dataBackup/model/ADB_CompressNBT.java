@@ -14,16 +14,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
+import cc.bukkitPlugin.commons.util.BukkitUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.bukkitPlugin.util.CCBukkit;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.FileUtil;
-import cc.bukkitPlugin.util.IOUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.config.CommentedSection;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.commentedyaml.CommentedSection;
+import cc.commons.util.ClassUtil;
+import cc.commons.util.FileUtil;
+import cc.commons.util.IOUtil;
 
 /**
  * 此模块使用范围:<br>
@@ -71,7 +71,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     protected void loadDataFromStream(CommandSender pSender,InputStream pIStream,Player pToPlayer) throws IOException{
         try{
-            Object tNBTTag=ClassUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,pIStream);
+            Object tNBTTag=ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,null,pIStream);
             this.loadDataFromNBT(pToPlayer,tNBTTag);
         }finally{
             pIStream.close();
@@ -99,7 +99,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
         HashSet<String> tBackedFile=new HashSet<>();
         if(pEnableReplace){
-            for(Player sPlayer : CCBukkit.getOnlinePlayers()){
+            for(Player sPlayer : BukkitUtil.getOnlinePlayers()){
                 if(!sPlayer.isOnline())
                     continue;
 
@@ -181,7 +181,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
         FileOutputStream tFOStream=null;
         try{
             tFOStream=FileUtil.openOutputStream(tDataFileTmp,false);
-            ClassUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,new Object[]{tNBTTag,tFOStream});
+            ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,null,new Object[]{tNBTTag,tFOStream});
             tFOStream.flush();
             if(tDataFile.isFile())
                 tDataFile.delete();

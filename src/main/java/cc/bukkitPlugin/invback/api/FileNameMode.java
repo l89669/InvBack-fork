@@ -1,6 +1,6 @@
 package cc.bukkitPlugin.invback.api;
 
-import cc.bukkitPlugin.util.StringUtil;
+import cc.commons.util.StringUtil;
 
 public enum FileNameMode{
     UUID,NAME;

@@ -11,12 +11,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
-import cc.bukkitPlugin.util.config.CommentedSection;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.commentedyaml.CommentedSection;
+import cc.commons.util.ClassUtil;
 
 public class DB_TConstruct extends ADB_CompressNBT{
 
@@ -43,12 +43,12 @@ public class DB_TConstruct extends ADB_CompressNBT{
             method_IPlayerExtendedInventoryWrapper_getAccessoryInventory=tClazz.getMethod("getAccessoryInventory",NMSUtil.clazz_EntityPlayer);
 
             tClazz=Class.forName("tconstruct.armor.player.TPlayerStats");
-            ArrayList<Method> tMethods=ClassUtil.getUnknowMethod(tClazz,void.class,NMSUtil.clazz_NBTTagCompound);
+            ArrayList<Method> tMethods=ClassUtil.getUnknowMethod(tClazz,void.class,NBTUtil.clazz_NBTTagCompound);
             Object tObj=ClassUtil.getInstance(tClazz);
             Object tNBTTag=NBTUtil.newNBTTagCompound();
             int writeMethod=0;
-            ClassUtil.invokeMethod(tObj,tMethods.get(writeMethod),tNBTTag);
-            if(NBTUtil.getNBTTagMapFromTag(tNBTTag).isEmpty()){
+            ClassUtil.invokeMethod(tMethods.get(writeMethod),tObj,tNBTTag);
+            if(NBTUtil.getNBTTagCompoundValue(tNBTTag).isEmpty()){
                 writeMethod=1;
             }
             this.method_TPlayerStats_saveNBTData=tMethods.get(writeMethod);
@@ -86,18 +86,18 @@ public class DB_TConstruct extends ADB_CompressNBT{
     }
 
     private Object getPlayerData(Player pPlayer){
-        return ClassUtil.invokeStaticMethod(this.method_TConstructAPI_getInventoryWrapper,NMSUtil.getNMSPlayer(pPlayer));
+        return ClassUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,NMSUtil.getNMSPlayer(pPlayer));
     }
 
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
-        return ClassUtil.invokeMethod(this.getPlayerData(pFromPlayer),this.method_TPlayerStats_saveNBTData,NBTUtil.newNBTTagCompound());
+        return ClassUtil.invokeMethod(this.method_TPlayerStats_saveNBTData,this.getPlayerData(pFromPlayer),NBTUtil.newNBTTagCompound());
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.reset(null,pToPlayer);
-        ClassUtil.invokeMethod(this.getPlayerData(pToPlayer),this.method_TPlayerStats_loadNBTData,pNBT);
+        ClassUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,pNBT,this.getPlayerData(pToPlayer));
     }
 
     @Override
@@ -113,11 +113,11 @@ public class DB_TConstruct extends ADB_CompressNBT{
     @Override
     public boolean reset(CommandSender pSender,Player pTargetPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pTargetPlayer);
-        Object tPlayerData=ClassUtil.invokeStaticMethod(this.method_TConstructAPI_getInventoryWrapper,tNMSPlayer);
-        ClassUtil.invokeMethod(tPlayerData,this.method_TPlayerStats_loadNBTData,NBTUtil.newNBTTagCompound());
+        Object tPlayerData=ClassUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,tNMSPlayer);
+        ClassUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,NBTUtil.newNBTTagCompound());
         HashSet<Object> NMSInvs=new HashSet<>();
-        NMSInvs.add(ClassUtil.invokeMethod(tPlayerData,method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tNMSPlayer));
-        NMSInvs.add(ClassUtil.invokeMethod(tPlayerData,method_IPlayerExtendedInventoryWrapper_getAccessoryInventory,tNMSPlayer));
+        NMSInvs.add(ClassUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tPlayerData,tNMSPlayer));
+        NMSInvs.add(ClassUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getAccessoryInventory,tPlayerData,tNMSPlayer));
         for(Object sNMSInv : NMSInvs){
             if(sNMSInv==null)
                 continue;

@@ -9,14 +9,14 @@ import java.util.TimerTask;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.plugin.INeedClose;
+import cc.bukkitPlugin.commons.plugin.INeedReload;
+import cc.bukkitPlugin.commons.plugin.manager.fileManager.IConfigModel;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.config.CommentedYamlConfig;
-import cc.bukkitPlugin.util.plugin.INeedClose;
-import cc.bukkitPlugin.util.plugin.INeedReload;
-import cc.bukkitPlugin.util.plugin.manager.fileManager.IConfigModel;
+import cc.commons.commentedyaml.CommentedYamlConfig;
+import cc.commons.util.ClassUtil;
 
 public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeedReload{
 
@@ -85,7 +85,7 @@ public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeed
         try{
             for(Field sField : TimerTask.class.getDeclaredFields()){
                 if(((sField.getModifiers()&(Modifier.FINAL+Modifier.STATIC))==0)&&sField.getType()==int.class||sField.getType()==long.class){
-                    ClassUtil.setFieldValue(this,sField,0);
+                    ClassUtil.setFieldValue(sField,this,0);
                 }
             }
         }catch(Throwable exp){

@@ -11,11 +11,12 @@ import java.util.Map;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
+import cc.commons.util.ClassUtil;
 
 public class DB_CustomNPC extends ADB_CompressNBT{
 
@@ -49,10 +50,10 @@ public class DB_CustomNPC extends ADB_CompressNBT{
             tClazz=Class.forName("noppes.npcs.controllers.PlayerData");
             this.method_PlayerData_getNBT=ClassUtil.getMethod(tClazz,"getNBT");
             Method tMethod=null;
-            if(ClassUtil.isMethodExist(tClazz,"readNBT",void.class,NMSUtil.clazz_NBTTagCompound)){
-                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NMSUtil.clazz_NBTTagCompound);
+            if(ClassUtil.isMethodExist(tClazz,"readNBT",void.class,NBTUtil.clazz_NBTTagCompound)){
+                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NBTUtil.clazz_NBTTagCompound);
             }else{
-                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"setNBT",NMSUtil.clazz_NBTTagCompound);
+                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"setNBT",NBTUtil.clazz_NBTTagCompound);
             }
             
             for(Field sField : tClazz.getDeclaredFields()){
@@ -88,20 +89,20 @@ public class DB_CustomNPC extends ADB_CompressNBT{
     
     private Object getPlayerData(Player pPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pPlayer);
-        return ClassUtil.invokeMethod(this.value_PlayerDataController_instance,this.method_PlayerDataController_getPlayerData,tNMSPlayer);
+        return ClassUtil.invokeMethod(this.method_PlayerDataController_getPlayerData,this.value_PlayerDataController_instance,tNMSPlayer);
     }
 
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         Object tPlayerData=this.getPlayerData(pFromPlayer);
-        return ClassUtil.invokeMethod(tPlayerData,this.method_PlayerData_getNBT);
+        return ClassUtil.invokeMethod(this.method_PlayerData_getNBT,tPlayerData);
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.reset(null,pToPlayer);
         Object tPlayerData=this.getPlayerData(pToPlayer);
-        ClassUtil.invokeMethod(tPlayerData,this.method_PlayerData_readNBT,pNBT);
+        ClassUtil.invokeMethod(this.method_PlayerData_readNBT,tPlayerData,pNBT);
     }
     
     @Override

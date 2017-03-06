@@ -1,7 +1,7 @@
 package cc.bukkitPlugin.invback.command;
 
+import cc.bukkitPlugin.commons.plugin.command.TCommandExc;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.plugin.command.TCommandExc;
 
 public class CommandExc extends TCommandExc<InvBack>{
 

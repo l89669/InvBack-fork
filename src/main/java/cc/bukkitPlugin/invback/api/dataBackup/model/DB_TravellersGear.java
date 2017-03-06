@@ -16,15 +16,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.dataBackup.DataBackupAPI;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.FileUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
-import cc.bukkitPlugin.util.config.CommentedSection;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.commentedyaml.CommentedSection;
+import cc.commons.util.ClassUtil;
+import cc.commons.util.FileUtil;
+import cc.commons.util.IOUtil;
 import travellersgear.api.TGSaveData;
 import travellersgear.api.TravellersGearAPI;
 
@@ -56,16 +57,16 @@ public class DB_TravellersGear extends ADataBackup{
             this.method_TravellersGearAPI_getTravellersNBTData=ClassUtil.getMethod(TravellersGearAPI.class,"getTravellersNBTData",NMSUtil.clazz_EntityPlayer);
 
             Class.forName("travellersgear.api.TGSaveData");
-            this.method_TGSaveData_setPlayerData=ClassUtil.getMethod(TGSaveData.class,"setPlayerData",new Class<?>[]{NMSUtil.clazz_EntityPlayer,NMSUtil.clazz_NBTTagCompound});
-            this.mTGSDInstance=ClassUtil.getFieldValue(TGSaveData.class,TGSaveData.class,-1).get(0);
-            this.mTGSDMap=(HashMap<UUID,Object>)ClassUtil.getFieldValue(this.mTGSDInstance,"playerData");
+            this.method_TGSaveData_setPlayerData=ClassUtil.getMethod(TGSaveData.class,"setPlayerData",new Class<?>[]{NMSUtil.clazz_EntityPlayer,NBTUtil.clazz_NBTTagCompound});
+            this.mTGSDInstance=ClassUtil.getFieldValue(TGSaveData.class,null,TGSaveData.class,-1).get(0);
+            this.mTGSDMap=(HashMap<UUID,Object>)ClassUtil.getFieldValue(TGSaveData.class,this.mTGSDInstance,"playerData");
             this.mTempTGSD=ClassUtil.getInstance(TGSaveData.class,String.class,"TestData");
-            this.mTempTGSDMap=(HashMap<UUID,Object>)ClassUtil.getFieldValue(this.mTempTGSD,"playerData");
-            Object tNBTTag=ClassUtil.getInstance(NMSUtil.clazz_NBTTagCompound);
-            ArrayList<Method> tMethods=ClassUtil.getUnknowMethod(TGSaveData.class,void.class,NMSUtil.clazz_NBTTagCompound);
-            ClassUtil.invokeMethod(this.mTempTGSD,tMethods.get(0),tNBTTag);
+            this.mTempTGSDMap=(HashMap<UUID,Object>)ClassUtil.getFieldValue(TGSaveData.class,this.mTempTGSD,"playerData");
+            Object tNBTTag=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
+            ArrayList<Method> tMethods=ClassUtil.getUnknowMethod(TGSaveData.class,void.class,NBTUtil.clazz_NBTTagCompound);
+            ClassUtil.invokeMethod(tMethods.get(0),this.mTempTGSD,tNBTTag);
             int writeMethod=0;
-            if(NBTUtil.getNBTTagMapFromTag(tNBTTag).isEmpty())
+            if(NBTUtil.getNBTTagCompoundValue(tNBTTag).isEmpty())
                 writeMethod=1;
             this.method_TGSaveData_readFromNBT=tMethods.get(1-writeMethod);
             this.method_TGSaveData_writeToNBT=tMethods.get(writeMethod);
@@ -105,16 +106,13 @@ public class DB_TravellersGear extends ADataBackup{
 
         File tTargetFile=new File(pTargetDir,this.mFileName);
         if(pEnableReplace){
-            Object tNBTTag=ClassUtil.getInstance(NMSUtil.clazz_NBTTagCompound);
-            ClassUtil.invokeMethod(this.mTGSDInstance,this.method_TGSaveData_writeToNBT,tNBTTag);
+            Object tNBTTag=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
+            ClassUtil.invokeMethod(this.method_TGSaveData_writeToNBT,this.mTGSDInstance,tNBTTag);
             FileOutputStream tFOStream=null;
             try{
-                ClassUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,new Object[]{tNBTTag,tFOStream=new FileOutputStream(tTargetFile,false)});
+                ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,null,new Object[]{tNBTTag,tFOStream=new FileOutputStream(tTargetFile,false)});
             }finally{
-                if(tFOStream!=null)
-                    try{
-                        tFOStream.close();
-                    }catch(Throwable exp){}
+                IOUtil.closeStream(tFOStream);
             }
         }else{
             File tCopySource=new File(this.mDataDir,this.mFileName);
@@ -126,7 +124,7 @@ public class DB_TravellersGear extends ADataBackup{
         }
         return true;
     }
-    
+
     @Override
     public boolean backup(CommandSender pSender,File pTargetDir,OfflinePlayer pTargetPlayer) throws IOException{
         return this.backup(pSender,pTargetDir,DataBackupAPI.isReplaceFileDataWithOnlineData());
@@ -134,18 +132,21 @@ public class DB_TravellersGear extends ADataBackup{
 
     /**
      * 复制NBTTag数据
-     * @param pNBTTagFrom   可以为null
-     * @param pNBTTagTo     不能为null
+     * 
+     * @param pNBTTagFrom
+     *            可以为null
+     * @param pNBTTagTo
+     *            不能为null
      */
     protected void copyNBTTag(Object pNBTTagFrom,Object pNBTTagTo){
         if(pNBTTagTo==null)
             return;
 
-        Map<String,Object> tMapValue=NBTUtil.getNBTTagMapFromTag(pNBTTagTo);
+        Map<String,Object> tMapValue=NBTUtil.getNBTTagCompoundValue(pNBTTagTo);
         tMapValue.clear();
         if(pNBTTagFrom!=null){
-            pNBTTagFrom=ClassUtil.invokeMethod(pNBTTagFrom,NMSUtil.method_NBTTagCompound_clone);
-            tMapValue.putAll(NBTUtil.getNBTTagMapFromTag(pNBTTagFrom));
+            pNBTTagFrom=NBTUtil.invokeNBTTagCompound_clone(pNBTTagFrom);
+            tMapValue.putAll(NBTUtil.getNBTTagCompoundValue(pNBTTagFrom));
         }
     }
 
@@ -161,19 +162,20 @@ public class DB_TravellersGear extends ADataBackup{
             InputStream tIStream=null;
             try{
                 tIStream=pBackupData.getInputStream(tEntry);
-                Object tNBTTag=ClassUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,tIStream);
+                Object tNBTTag=ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,null,tIStream);
 
                 this.mTempTGSDMap.clear();
-                ClassUtil.invokeMethod(this.mTempTGSD,this.method_TGSaveData_readFromNBT,tNBTTag);
+                ClassUtil.invokeMethod(this.method_TGSaveData_readFromNBT,this.mTempTGSD,tNBTTag);
                 Object tPlayerNBTTag=this.mTGSDMap.get(pFromPlayer.getUniqueId());
-                Object tNMSPlayer=ClassUtil.invokeMethod(pToPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-                this.copyNBTTag(tPlayerNBTTag,ClassUtil.invokeStaticMethod(this.method_TravellersGearAPI_getTravellersNBTData,tNMSPlayer));
+                Object tNMSPlayer=NMSUtil.getNMSPlayer(pToPlayer);
+                this.copyNBTTag(tPlayerNBTTag,ClassUtil.invokeMethod(this.method_TravellersGearAPI_getTravellersNBTData,null,tNMSPlayer));
                 TGSaveData.setDirty();
             }finally{
                 if(tIStream!=null)
                     try{
                         tIStream.close();
-                    }catch(Throwable exp){}
+                    }catch(Throwable exp){
+                    }
             }
         }
         return false;
@@ -187,11 +189,11 @@ public class DB_TravellersGear extends ADataBackup{
         if(pFromPlayer==pToPlayer)
             return true;
 
-        Object tNMSPlayer=ClassUtil.invokeMethod(pFromPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        Object tNBTTagFrom=ClassUtil.invokeStaticMethod(this.method_TravellersGearAPI_getTravellersNBTData,tNMSPlayer);
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pFromPlayer);
+        Object tNBTTagFrom=ClassUtil.invokeMethod(this.method_TravellersGearAPI_getTravellersNBTData,null,tNMSPlayer);
         Object tNBTTagTo=this.mTGSDMap.get(pToPlayer.getUniqueId());
         if(tNBTTagTo==null){
-            tNBTTagTo=ClassUtil.getInstance(NMSUtil.clazz_NBTTagCompound);
+            tNBTTagTo=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
             this.mTGSDMap.put(pToPlayer.getUniqueId(),pToPlayer);
         }
         this.copyNBTTag(tNBTTagFrom,tNBTTagTo);
@@ -205,8 +207,8 @@ public class DB_TravellersGear extends ADataBackup{
             return false;
 
         Object tNBTTagFrom=this.mTGSDMap.get(pFromPlayer.getUniqueId());
-        Object tNMSPlayer=ClassUtil.invokeMethod(pToPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        Object tNBTTagTo=ClassUtil.invokeStaticMethod(this.method_TravellersGearAPI_getTravellersNBTData,tNMSPlayer);
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pToPlayer);
+        Object tNBTTagTo=ClassUtil.invokeMethod(this.method_TravellersGearAPI_getTravellersNBTData,null,tNMSPlayer);
         this.copyNBTTag(tNBTTagFrom,tNBTTagTo);
         TGSaveData.setDirty();
         return true;
@@ -214,21 +216,21 @@ public class DB_TravellersGear extends ADataBackup{
 
     @Override
     public boolean saveToMemoryMap(CommandSender pSender,Player pFromPlayer,Map<Object,Object> pMemoryData){
-        Object tNMSPlayer=ClassUtil.invokeMethod(pFromPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        Object tNBTTagFrom=ClassUtil.invokeStaticMethod(this.method_TravellersGearAPI_getTravellersNBTData,tNMSPlayer);
-        pMemoryData.put(this.getClass(),ClassUtil.invokeMethod(tNBTTagFrom,NMSUtil.method_NBTTagCompound_clone));
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pFromPlayer);
+        Object tNBTTagFrom=ClassUtil.invokeMethod(this.method_TravellersGearAPI_getTravellersNBTData,null,tNMSPlayer);
+        pMemoryData.put(this.getClass(),ClassUtil.invokeMethod(NBTUtil.method_NBTTagCompound_clone,tNBTTagFrom));
         return true;
     }
 
     @Override
     public boolean loadFromMemoryMap(CommandSender pSender,Player pToPlayer,Map<Object,Object> pMemoryData){
         Object tNBTTagFrom=pMemoryData.get(this.getClass());
-        if(!NMSUtil.clazz_NBTTagCompound.isInstance(tNBTTagFrom))
+        if(!NBTUtil.clazz_NBTTagCompound.isInstance(tNBTTagFrom))
             return true;
 
         Object tNBTTagTo=this.mTempTGSDMap.get(pToPlayer.getUniqueId());
         if(tNBTTagTo==null){
-            tNBTTagTo=ClassUtil.getInstance(NMSUtil.clazz_NBTTagCompound);
+            tNBTTagTo=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
             this.mTGSDMap.put(pToPlayer.getUniqueId(),pToPlayer);
         }
         this.copyNBTTag(tNBTTagFrom,tNBTTagTo);
@@ -249,8 +251,8 @@ public class DB_TravellersGear extends ADataBackup{
         if(!this.mEnable)
             return false;
 
-        Object tNBTTagFrom=ClassUtil.invokeStaticMethod(this.method_TravellersGearAPI_getTravellersNBTData,NMSUtil.getNMSPlayer(pTargetPlayer));
-        NBTUtil.getNBTTagMapFromTag(tNBTTagFrom).clear();
+        Object tNBTTagFrom=ClassUtil.invokeMethod(this.method_TravellersGearAPI_getTravellersNBTData,null,NMSUtil.getNMSPlayer(pTargetPlayer));
+        NBTUtil.getNBTTagCompoundValue(tNBTTagFrom).clear();
         TGSaveData.setDirty();
         return true;
     }

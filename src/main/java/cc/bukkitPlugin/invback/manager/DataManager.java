@@ -22,23 +22,23 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.plugin.manager.AManager;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.dataBackup.DataBackupAPI;
 import cc.bukkitPlugin.invback.api.dataBackup.IDataBackup;
-import cc.bukkitPlugin.util.FileUtil;
-import cc.bukkitPlugin.util.Function;
-import cc.bukkitPlugin.util.IOUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.StringUtil;
-import cc.bukkitPlugin.util.plugin.manager.AManager;
+import cc.commons.util.CollUtil;
+import cc.commons.util.FileUtil;
+import cc.commons.util.IOUtil;
+import cc.commons.util.StringUtil;
 
 public class DataManager extends AManager<InvBack>{
 
     public final SimpleDateFormat mFormatOfDay=new SimpleDateFormat("yyyy-MM-dd");
     public final SimpleDateFormat mFormatOfTime=new SimpleDateFormat("HH-mm-ss");
-    /**备份文件匹配模式*/
+    /** 备份文件匹配模式 */
     public final Pattern backFileName=Pattern.compile("(\\d{2}-\\d{2}-\\d{2})\\.zip",2);
-    /**内存中的玩家备份数据*/
+    /** 内存中的玩家备份数据 */
     private final HashMap<UUID,Map<Object,Object>> mMemoryInvBackup=new HashMap<>();
 
     public DataManager(InvBack pPlugin){
@@ -55,8 +55,10 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 根据提供的时间获取对应的备份文件名字
-     * @param pTime     时间
-     * @return          对应时间的文件
+     * 
+     * @param pTime
+     *            时间
+     * @return 对应时间的文件
      */
     protected String getBackupFileNameFromDate(Date pTime){
         return this.mFormatOfDay.format(pTime)+File.separator+this.mFormatOfTime.format(pTime)+".zip";
@@ -64,18 +66,15 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 备份玩家数据
-     * @param pSender       请求发送者
+     * 
+     * @param pSender
+     *            请求发送者
      */
     synchronized public void backup(CommandSender pSender){
         Log.send(pSender,this.mPlugin.C("MsgStartBackup"));
         long tStartTime=System.currentTimeMillis();
         File tTempDir=new File(DataBackupAPI.getBackupDir(),"temp"+File.separator);
-
-        try{
-            FileUtil.clearDir(tTempDir);
-        }catch(IOException exp){
-            Log.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
-        }
+        FileUtil.clearDir(tTempDir);
         if(!tTempDir.isDirectory())
             tTempDir.mkdirs();
 
@@ -91,7 +90,7 @@ public class DataManager extends AManager<InvBack>{
             }
         }
 
-        if(Function.isEmpty(tTempDir.list())){
+        if(CollUtil.isEmpty(tTempDir.list())){
             Log.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
             return;
         }
@@ -113,26 +112,22 @@ public class DataManager extends AManager<InvBack>{
         tTimedTempZipFile.renameTo(tTimedBackupFile);
         if(!ConfigManager.isDebug()){
             tTimedTempZipFile.delete();
-            try{
-                FileUtil.clearDir(tTempDir);
-            }catch(IOException ignore){}
+            FileUtil.clearDir(tTempDir);
         }
         Log.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",System.currentTimeMillis()-tStartTime+"ms"));
     }
 
     /**
      * 备份玩家数据
-     * @param pSender       请求发送者
+     * 
+     * @param pSender
+     *            请求发送者
      */
     public void backup(CommandSender pSender,String pSubDir,OfflinePlayer pTargetPlayer){
         long tStartTime=System.currentTimeMillis();
         File tTempDir=new File(DataBackupAPI.getBackupDir(),"tempplayer"+File.separator);
+        FileUtil.clearDir(tTempDir);
 
-        try{
-            FileUtil.clearDir(tTempDir);
-        }catch(IOException exp){
-            Log.severe(pSender,this.mPlugin.C("MsgErrorOnClearFileDir","%dir%",tTempDir.getAbsolutePath())+": "+exp.getMessage(),exp);
-        }
         if(!tTempDir.isDirectory())
             tTempDir.mkdirs();
 
@@ -147,7 +142,7 @@ public class DataManager extends AManager<InvBack>{
             }
         }
 
-        if(Function.isEmpty(tTempDir.list())){
+        if(CollUtil.isEmpty(tTempDir.list())){
             Log.info(pSender,this.mPlugin.C("MsgNoFileCopyToTempDir"));
             return;
         }
@@ -172,19 +167,22 @@ public class DataManager extends AManager<InvBack>{
         tTimedTempZipFile.renameTo(tTimedBackupFile);
         if(!ConfigManager.isDebug()){
             tTimedTempZipFile.delete();
-            try{
-                FileUtil.clearDir(tTempDir);
-            }catch(IOException ignore){}
+            FileUtil.clearDir(tTempDir);
         }
         Log.send(pSender,this.mPlugin.C("MsgBackupCompleteAndTookTime","%time%",System.currentTimeMillis()-tStartTime+"ms"));
     }
-    
+
     /**
      * 使用指定的玩家存档还原在线玩家数据
-     * @param pSender       请求发送者
-     * @param pTime         还原的时间
-     * @param pFromPlayer   数据来源玩家
-     * @param pToPlayer     要还原数据的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pTime
+     *            还原的时间
+     * @param pFromPlayer
+     *            数据来源玩家
+     * @param pToPlayer
+     *            要还原数据的玩家
      */
     public void restorePlayerData(CommandSender pSender,Date pTime,OfflinePlayer pFromPlayer,Player pToPlayer){
         File tRestoreFile=new File(DataBackupAPI.getBackupDir(),this.getBackupFileNameFromDate(pTime));
@@ -197,10 +195,15 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 使用指定的玩家存档还原在线玩家数据
-     * @param pSender       请求发送者
-     * @param pTime         还原的时间
-     * @param pFromPlayer   数据来源玩家
-     * @param pToPlayer     要还原数据的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pTime
+     *            还原的时间
+     * @param pFromPlayer
+     *            数据来源玩家
+     * @param pToPlayer
+     *            要还原数据的玩家
      */
     public void restorePlayerData(CommandSender pSender,File pRestoreFile,OfflinePlayer pFromPlayer,Player pToPlayer){
         ZipFile tZipFile=null;
@@ -226,20 +229,29 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 将在线玩家的数据保存到指定的玩家存档
-     * @param pSender       请求发送者
-     * @param pFromPlayer   数据来源
-     * @param pToPlayer     要保存到的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pFromPlayer
+     *            数据来源
+     * @param pToPlayer
+     *            要保存到的玩家
      */
     public void savePlayerData(CommandSender pSender,Player pFromPlayer,OfflinePlayer pToPlayer){
         this.savePlayerData(pSender,null,pFromPlayer,pToPlayer);
     }
-    
+
     /**
      * 将在线玩家的数据保存到指定的玩家存档
-     * @param pSender       请求发送者
-     * @param pSaveDir      保存到的位置
-     * @param pFromPlayer   数据来源
-     * @param pToPlayer     要保存到的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pSaveDir
+     *            保存到的位置
+     * @param pFromPlayer
+     *            数据来源
+     * @param pToPlayer
+     *            要保存到的玩家
      */
     public void savePlayerData(CommandSender pSender,File pSaveDir,Player pFromPlayer,OfflinePlayer pToPlayer){
         String tFromName=pSender==pFromPlayer?this.mPlugin.C("WordYou"):pFromPlayer.getName();
@@ -268,9 +280,13 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 从指定玩家存档载入玩家说
-     * @param pSender       请求发送者
-     * @param pToPlayer     要还原数据的玩家
-     * @param pFromPlayer   数据来源
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pToPlayer
+     *            要还原数据的玩家
+     * @param pFromPlayer
+     *            数据来源
      */
     public void loadPlayerData(CommandSender pSender,Player pToPlayer,OfflinePlayer pFromPlayer){
         String tToName=pSender==pToPlayer?this.mPlugin.C("WordYou"):pToPlayer.getName();
@@ -292,9 +308,13 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 保存玩家数据到内存中
-     * @param pSender       请求发送者
-     * @param pFromPlayer   数据来源
-     * @param pNotify       是否在成功时发送通知
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pFromPlayer
+     *            数据来源
+     * @param pNotify
+     *            是否在成功时发送通知
      */
     public void saveToMemoryMap(CommandSender pSender,Player pFromPlayer,boolean pNotify){
         String tPlayerName=pSender==pFromPlayer?this.mPlugin.C("WordYou"):pFromPlayer.getName();
@@ -316,9 +336,13 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 从内存中载入玩家数据
-     * @param pSender       请求发送者
-     * @param pToPlayer     要载入的玩家
-     * @param pNotify       是否在成功时发送通知
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pToPlayer
+     *            要载入的玩家
+     * @param pNotify
+     *            是否在成功时发送通知
      */
     public void loadFromMemoryMap(CommandSender pSender,Player pToPlayer,boolean pNotify){
         String tPlayerName=pSender==pToPlayer?this.mPlugin.C("WordYou"):pToPlayer.getName();
@@ -343,9 +367,13 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 在线玩家数据复制
-     * @param pSender       请求发送者
-     * @param pFromPlayer   数据来源
-     * @param pToPlayer     数据复制到的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pFromPlayer
+     *            数据来源
+     * @param pToPlayer
+     *            数据复制到的玩家
      */
     public void copyPlayerData(CommandSender pSender,Player pFromPlayer,Player pToPlayer){
         String tToName=pSender==pToPlayer?this.mPlugin.C("WordYou"):pToPlayer.getName();
@@ -371,8 +399,11 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 重置一个玩家的数据
-     * @param pSender       请求发送者
-     * @param pTargetPlayer 要重置的玩家
+     * 
+     * @param pSender
+     *            请求发送者
+     * @param pTargetPlayer
+     *            要重置的玩家
      */
     public void resetPlayerData(CommandSender pSender,Player pTargetPlayer){
         String tPlayerName=pSender==pTargetPlayer?this.mPlugin.C("WordYou"):pTargetPlayer.getName();
@@ -418,19 +449,17 @@ public class DataManager extends AManager<InvBack>{
         for(String sDirName : dirNames){
             if(deleteDirCount<=0)
                 break;
-
-            try{
-                FileUtil.deleteFile(new File(tBackupDir,sDirName));
-            }catch(IOException exp){
-                Log.severe(this.mPlugin.C("MsgErrorOnClearExpriedBackup"),exp);
-            }
+            
+            FileUtil.deleteFile(new File(tBackupDir,sDirName));
             deleteDirCount--;
         }
     }
 
     /**
      * 获取指定时间的备份背包
-     * @param pDate 时间
+     * 
+     * @param pDate
+     *            时间
      * @return 备份短文件名和文件HashMap,非null
      */
     public ArrayList<File> getInvBackupFile(Date pDate){
@@ -462,7 +491,9 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 移除内存中备份的玩家数据
-     * @param pPlayer 玩家
+     * 
+     * @param pPlayer
+     *            玩家
      * @return NBTTagCompound的实例或null
      */
     public Map<Object,Object> removePlayerDataFromMemony(Player pPlayer){
@@ -473,7 +504,9 @@ public class DataManager extends AManager<InvBack>{
 
     /**
      * 清理内存中备份的玩家数据
-     * @param pPlayer 玩家
+     * 
+     * @param pPlayer
+     *            玩家
      * @return 清理的数量
      */
     public void clearPlayerData(CommandSender pSender){

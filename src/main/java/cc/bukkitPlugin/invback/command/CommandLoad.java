@@ -7,9 +7,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.plugin.command.TACommandBase;
+import cc.bukkitPlugin.commons.util.BukkitUtil;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.CCBukkit;
-import cc.bukkitPlugin.util.plugin.command.TACommandBase;
 
 public class CommandLoad extends TACommandBase<InvBack,CommandExc>{
 
@@ -62,9 +62,9 @@ public class CommandLoad extends TACommandBase<InvBack,CommandExc>{
     public ArrayList<String> getTabSubCmd(CommandSender pSender,String pLabel,String[] pArgs){
         switch(pArgs.length){
         case 1:
-            return CCBukkit.getOfflinePlayersName();
+            return BukkitUtil.getOfflinePlayersName();
         case 2:
-            return CCBukkit.getOnlinePlayersName();
+            return BukkitUtil.getOnlinePlayersName();
         }
         return new ArrayList<>(0);
     }

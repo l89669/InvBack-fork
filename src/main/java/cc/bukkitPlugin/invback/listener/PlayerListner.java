@@ -5,10 +5,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import cc.bukkitPlugin.commons.plugin.AListener;
+import cc.bukkitPlugin.commons.plugin.manager.fileManager.IConfigModel;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.config.CommentedYamlConfig;
-import cc.bukkitPlugin.util.plugin.AListener;
-import cc.bukkitPlugin.util.plugin.manager.fileManager.IConfigModel;
+import cc.commons.commentedyaml.CommentedYamlConfig;
 
 public class PlayerListner extends AListener<InvBack> implements IConfigModel{
 

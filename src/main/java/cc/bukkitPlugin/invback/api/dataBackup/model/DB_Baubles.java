@@ -6,12 +6,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.util.ClassUtil;
 
 public class DB_Baubles extends ADB_CompressNBT{
 
@@ -33,8 +33,8 @@ public class DB_Baubles extends ADB_CompressNBT{
             tClazz=Class.forName("baubles.api.BaublesApi");
             this.method_BaublesApi_getBaubles=tClazz.getMethod("getBaubles",NMSUtil.clazz_EntityPlayer);
             tClazz=Class.forName("baubles.common.container.InventoryBaubles");
-            this.method_InventoryBaubles_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NMSUtil.clazz_NBTTagCompound);
-            this.method_InventoryBaubles_saveNBT=ClassUtil.getMethod(tClazz,"saveNBT",NMSUtil.clazz_NBTTagCompound);
+            this.method_InventoryBaubles_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NBTUtil.clazz_NBTTagCompound);
+            this.method_InventoryBaubles_saveNBT=ClassUtil.getMethod(tClazz,"saveNBT",NBTUtil.clazz_NBTTagCompound);
         }catch(Exception exp){
             if(!(exp instanceof ClassNotFoundException))
                 Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
@@ -56,14 +56,14 @@ public class DB_Baubles extends ADB_CompressNBT{
     protected Object saveDataToNBT(Player pFromPlayer){
         Object tNMSInv=this.getBaublesNMSInv(pFromPlayer);
         Object tNBTTag=NBTUtil.newNBTTagCompound();
-        ClassUtil.invokeMethod(tNMSInv,this.method_InventoryBaubles_saveNBT,tNBTTag);
+        ClassUtil.invokeMethod(this.method_InventoryBaubles_saveNBT,tNMSInv,tNBTTag);
         return tNBTTag;
     }
 
     protected void loadDataFromNBT(Player pToPlayer,Object pNBTTag){
         Object tNMSInv=this.getBaublesNMSInv(pToPlayer);
         this.clearInv(tNMSInv);
-        ClassUtil.invokeMethod(tNMSInv,this.method_InventoryBaubles_readNBT,pNBTTag);
+        ClassUtil.invokeMethod(this.method_InventoryBaubles_readNBT,tNMSInv,pNBTTag);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DB_Baubles extends ADB_CompressNBT{
 
     protected Object getBaublesNMSInv(Player pPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pPlayer);
-        return ClassUtil.invokeStaticMethod(this.method_BaublesApi_getBaubles,tNMSPlayer);
+        return ClassUtil.invokeMethod(this.method_BaublesApi_getBaubles,null,tNMSPlayer);
     }
     
     private void clearInv(Object pInv){

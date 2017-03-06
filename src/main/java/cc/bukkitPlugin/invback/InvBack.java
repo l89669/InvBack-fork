@@ -1,5 +1,6 @@
 package cc.bukkitPlugin.invback;
 
+import cc.bukkitPlugin.commons.plugin.ABukkitPlugin;
 import cc.bukkitPlugin.invback.api.dataBackup.DataBackupAPI;
 import cc.bukkitPlugin.invback.command.CommandExc;
 import cc.bukkitPlugin.invback.listener.PlayerListner;
@@ -7,7 +8,6 @@ import cc.bukkitPlugin.invback.manager.ConfigManager;
 import cc.bukkitPlugin.invback.manager.DataManager;
 import cc.bukkitPlugin.invback.manager.LangManager;
 import cc.bukkitPlugin.invback.task.TaskExec;
-import cc.bukkitPlugin.util.plugin.ABukkitPlugin;
 
 public class InvBack extends ABukkitPlugin<InvBack>{
 

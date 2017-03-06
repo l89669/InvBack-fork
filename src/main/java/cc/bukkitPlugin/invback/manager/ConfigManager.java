@@ -4,12 +4,12 @@ import java.io.File;
 
 import org.bukkit.command.CommandSender;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.plugin.manager.fileManager.TConfigManager;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.plugin.manager.fileManager.AConfigManager;
 
-public class ConfigManager extends AConfigManager<InvBack>{
+public class ConfigManager extends TConfigManager<InvBack>{
 
     private File mBackupDir=new File("");
     private File mServerDir=new File("");

@@ -6,8 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.plugin.command.TACommandBase;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.bukkitPlugin.util.plugin.command.TACommandBase;
 
 
 public class CommandReset extends TACommandBase<InvBack,CommandExc>{

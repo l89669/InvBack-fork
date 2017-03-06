@@ -7,13 +7,13 @@ import java.util.Map;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.util.ClassUtil;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategoryList;
 import thaumcraft.api.research.ResearchItem;
@@ -57,12 +57,12 @@ public class DB_ThaumCraft extends ADB_CompressNBT{
             this.checkMethod(tClazz,new String[]{"getWarpCounter","getWarpPerm","getWarpSticky","getWarpTemp","wipePlayerKnowledge"},String.class);
 
             tClazz=Class.forName("thaumcraft.common.lib.research.ResearchManager");
-            this.method_ResearchManager_loadAspectNBT=tClazz.getDeclaredMethod("loadAspectNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
-            this.method_ResearchManager_loadResearchNBT=tClazz.getDeclaredMethod("loadResearchNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
-            this.method_ResearchManager_loadScannedNBT=tClazz.getDeclaredMethod("loadScannedNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
-            this.method_ResearchManager_saveAspectNBT=tClazz.getDeclaredMethod("saveAspectNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
-            this.method_ResearchManager_saveResearchNBT=tClazz.getDeclaredMethod("saveResearchNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
-            this.method_ResearchManager_saveScannedNBT=tClazz.getDeclaredMethod("saveScannedNBT",NMSUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_loadAspectNBT=tClazz.getDeclaredMethod("loadAspectNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_loadResearchNBT=tClazz.getDeclaredMethod("loadResearchNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_loadScannedNBT=tClazz.getDeclaredMethod("loadScannedNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_saveAspectNBT=tClazz.getDeclaredMethod("saveAspectNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_saveResearchNBT=tClazz.getDeclaredMethod("saveResearchNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
+            this.method_ResearchManager_saveScannedNBT=tClazz.getDeclaredMethod("saveScannedNBT",NBTUtil.clazz_NBTTagCompound,NMSUtil.clazz_EntityPlayer);
             this.method_ResearchManager_completeResearch=tClazz.getDeclaredMethod("completeResearch",NMSUtil.clazz_EntityPlayer,String.class);
         }catch(Exception exp){
             if(!(exp instanceof ClassNotFoundException)&&!(exp instanceof NoSuchMethodException))
@@ -85,17 +85,17 @@ public class DB_ThaumCraft extends ADB_CompressNBT{
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         Object tNBTTagCompound=ClassUtil.getInstance(IBNMSUtil.clazz_NBTTagCompound);
-        Object tNMSPlayer=ClassUtil.invokeMethod(pFromPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_saveAspectNBT,new Object[]{tNBTTagCompound,tNMSPlayer});
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_saveResearchNBT,new Object[]{tNBTTagCompound,tNMSPlayer});
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_saveScannedNBT,new Object[]{tNBTTagCompound,tNMSPlayer});
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pFromPlayer);
+        ClassUtil.invokeMethod(this.method_ResearchManager_saveAspectNBT,null,new Object[]{tNBTTagCompound,tNMSPlayer});
+        ClassUtil.invokeMethod(this.method_ResearchManager_saveResearchNBT,null,new Object[]{tNBTTagCompound,tNMSPlayer});
+        ClassUtil.invokeMethod(this.method_ResearchManager_saveScannedNBT,null,new Object[]{tNBTTagCompound,tNMSPlayer});
 
         String tPlayerName=pFromPlayer.getName();
-        Map<String,Object> tTagMap=NBTUtil.getNBTTagMapFromTag(tNBTTagCompound);
-        tTagMap.put(TAG_Eldritch,ClassUtil.getInstance(NMSUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpPerm(tPlayerName)));
-        tTagMap.put(TAG_Eldritch_Counter,ClassUtil.getInstance(NMSUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpCounter(tPlayerName)));
-        tTagMap.put(TAG_Eldritch_Sticky,ClassUtil.getInstance(NMSUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpSticky(tPlayerName)));
-        tTagMap.put(TAG_Eldritch_Temp,ClassUtil.getInstance(NMSUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpTemp(tPlayerName)));
+        Map<String,Object> tTagMap=NBTUtil.getNBTTagCompoundValue(tNBTTagCompound);
+        tTagMap.put(TAG_Eldritch,ClassUtil.getInstance(NBTUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpPerm(tPlayerName)));
+        tTagMap.put(TAG_Eldritch_Counter,ClassUtil.getInstance(NBTUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpCounter(tPlayerName)));
+        tTagMap.put(TAG_Eldritch_Sticky,ClassUtil.getInstance(NBTUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpSticky(tPlayerName)));
+        tTagMap.put(TAG_Eldritch_Temp,ClassUtil.getInstance(NBTUtil.clazz_NBTTagInt,int.class,Thaumcraft.proxy.getPlayerKnowledge().getWarpTemp(tPlayerName)));
 
         return tNBTTagCompound;
     }
@@ -104,28 +104,28 @@ public class DB_ThaumCraft extends ADB_CompressNBT{
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.wipePlayerData(pToPlayer);
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pToPlayer);
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_loadAspectNBT,new Object[]{pNBT,tNMSPlayer});
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_loadResearchNBT,new Object[]{pNBT,tNMSPlayer});
-        ClassUtil.invokeStaticMethod(this.method_ResearchManager_loadScannedNBT,new Object[]{pNBT,tNMSPlayer});
+        ClassUtil.invokeMethod(this.method_ResearchManager_loadAspectNBT,null,new Object[]{pNBT,tNMSPlayer});
+        ClassUtil.invokeMethod(this.method_ResearchManager_loadResearchNBT,null,new Object[]{pNBT,tNMSPlayer});
+        ClassUtil.invokeMethod(this.method_ResearchManager_loadScannedNBT,null,new Object[]{pNBT,tNMSPlayer});
 
         String tPlayerName=pToPlayer.getName();
-        Map<String,Object> tTagMap=NBTUtil.getNBTTagMapFromTag(pNBT);
+        Map<String,Object> tTagMap=NBTUtil.getNBTTagCompoundValue(pNBT);
 
         Object tValue=tTagMap.get(TAG_Eldritch);
-        if(NMSUtil.clazz_NBTTagInt.isInstance(tValue)){
-            Thaumcraft.proxy.getPlayerKnowledge().setWarpPerm(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NMSUtil.field_NBTTagInt_value));
+        if(NBTUtil.clazz_NBTTagInt.isInstance(tValue)){
+            Thaumcraft.proxy.getPlayerKnowledge().setWarpPerm(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NBTUtil.field_NBTTagInt_value));
         }
         tValue=tTagMap.get(TAG_Eldritch_Counter);
-        if(NMSUtil.clazz_NBTTagInt.isInstance(tValue)){
-            Thaumcraft.proxy.getPlayerKnowledge().setWarpCounter(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NMSUtil.field_NBTTagInt_value));
+        if(NBTUtil.clazz_NBTTagInt.isInstance(tValue)){
+            Thaumcraft.proxy.getPlayerKnowledge().setWarpCounter(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NBTUtil.field_NBTTagInt_value));
         }
         tValue=tTagMap.get(TAG_Eldritch_Sticky);
-        if(NMSUtil.clazz_NBTTagInt.isInstance(tValue)){
-            Thaumcraft.proxy.getPlayerKnowledge().setWarpSticky(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NMSUtil.field_NBTTagInt_value));
+        if(NBTUtil.clazz_NBTTagInt.isInstance(tValue)){
+            Thaumcraft.proxy.getPlayerKnowledge().setWarpSticky(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NBTUtil.field_NBTTagInt_value));
         }
         tValue=tTagMap.get(TAG_Eldritch_Temp);
-        if(NMSUtil.clazz_NBTTagInt.isInstance(tValue)){
-            Thaumcraft.proxy.getPlayerKnowledge().setWarpTemp(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NMSUtil.field_NBTTagInt_value));
+        if(NBTUtil.clazz_NBTTagInt.isInstance(tValue)){
+            Thaumcraft.proxy.getPlayerKnowledge().setWarpTemp(tPlayerName,(int)ClassUtil.getFieldValue(tValue,NBTUtil.field_NBTTagInt_value));
         }
 
     }
@@ -146,7 +146,7 @@ public class DB_ThaumCraft extends ADB_CompressNBT{
                 Collection<ResearchItem> tRIs=sRCL.research.values();
                 for(ResearchItem sRI : tRIs){
                     if(sRI.isAutoUnlock()){
-                        ClassUtil.invokeMethod(tMan,this.method_ResearchManager_completeResearch,new Object[]{tNMSPlayer,sRI.key});
+                        ClassUtil.invokeMethod(this.method_ResearchManager_completeResearch,tMan,new Object[]{tNMSPlayer,sRI.key});
                     }
                 }
             }

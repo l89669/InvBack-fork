@@ -15,15 +15,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.FileUtil;
-import cc.bukkitPlugin.util.Function;
-import cc.bukkitPlugin.util.IOUtil;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.NMSUtil;
-import cc.bukkitPlugin.util.config.CommentedSection;
+import cc.commons.commentedyaml.CommentedSection;
+import cc.commons.util.ClassUtil;
+import cc.commons.util.CollUtil;
+import cc.commons.util.FileUtil;
+import cc.commons.util.IOUtil;
 
 public class DB_Achievement extends ADB_CompressNBT{
 
@@ -43,7 +43,7 @@ public class DB_Achievement extends ADB_CompressNBT{
     public boolean init(){
         try{
             for(Method sMethod : NMSUtil.clazz_EntityPlayerMP.getDeclaredMethods()){
-                if(Function.isEmpty(sMethod.getParameterTypes())&&sMethod.getReturnType().getSimpleName().toLowerCase().contains("statistic")){
+                if(CollUtil.isEmpty(sMethod.getParameterTypes())&&sMethod.getReturnType().getSimpleName().toLowerCase().contains("statistic")){
                     this.method_EntityPlayerMP_getStatisticMan=sMethod;
                     break;
                 }
@@ -96,7 +96,7 @@ public class DB_Achievement extends ADB_CompressNBT{
     }
 
     private Object getStatMan(Player pPlayer){
-        return ClassUtil.invokeMethod(NMSUtil.getNMSPlayer(pPlayer),this.method_EntityPlayerMP_getStatisticMan);
+        return ClassUtil.invokeMethod(this.method_EntityPlayerMP_getStatisticMan,NMSUtil.getNMSPlayer(pPlayer));
     }
     
     private Map<Object,Object> getManStatValue(Object pStatMan){
@@ -105,14 +105,14 @@ public class DB_Achievement extends ADB_CompressNBT{
     
     protected String saveDataToString(Player pFromPlayer){
         Object tStatMan=this.getStatMan(pFromPlayer);
-        return (String)ClassUtil.invokeMethod(tStatMan,this.method_StatisticsFile_saveStatistic,this.getManStatValue(tStatMan));
+        return (String)ClassUtil.invokeMethod(this.method_StatisticsFile_saveStatistic,tStatMan,this.getManStatValue(tStatMan));
     }
 
     protected void loadDataFromString(Player pToPlayer,String pData){
         Object tStatMan=this.getStatMan(pToPlayer);
         Map<Object,Object> tPlayerStatValue=this.getManStatValue(tStatMan);
         tPlayerStatValue.clear();
-        tPlayerStatValue.putAll((Map<Object,Object>)ClassUtil.invokeMethod(tStatMan,this.method_StatisticsFile_loadStatistic,pData));
+        tPlayerStatValue.putAll((Map<Object,Object>)ClassUtil.invokeMethod(this.method_StatisticsFile_loadStatistic,tStatMan,pData));
     }
 
     @Override

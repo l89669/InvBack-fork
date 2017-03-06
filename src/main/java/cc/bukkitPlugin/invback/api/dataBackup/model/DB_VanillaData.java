@@ -3,11 +3,12 @@ package cc.bukkitPlugin.invback.api.dataBackup.model;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
+import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.bukkitPlugin.util.ClassUtil;
-import cc.bukkitPlugin.util.nbt.NBTUtil;
+import cc.commons.util.ClassUtil;
 
 public class DB_VanillaData extends ADB_CompressNBT{
 
@@ -33,15 +34,15 @@ public class DB_VanillaData extends ADB_CompressNBT{
     }
 
     protected Object saveDataToNBT(Player pFromPlayer){
-        Object tNBTTagCompound=ClassUtil.getInstance(IBNMSUtil.clazz_NBTTagCompound);
-        Object tNMSPlayer=ClassUtil.invokeMethod(pFromPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        ClassUtil.invokeMethod(tNMSPlayer,IBNMSUtil.method_EntityPlayer_writeToNBT,tNBTTagCompound);
+        Object tNBTTagCompound=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pFromPlayer);
+        ClassUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_writeToNBT,tNMSPlayer,tNBTTagCompound);
         return tNBTTagCompound;
     }
 
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
-        Object tNMSPlayer=ClassUtil.invokeMethod(pToPlayer,IBNMSUtil.method_CraftPlayer_getHandle);
-        ClassUtil.invokeMethod(tNMSPlayer,IBNMSUtil.method_EntityPlayer_readFromNBT,pNBT);
+        Object tNMSPlayer=NMSUtil.getNMSPlayer(pToPlayer);
+        ClassUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_readFromNBT,tNMSPlayer,pNBT);
     }
 
     @Override

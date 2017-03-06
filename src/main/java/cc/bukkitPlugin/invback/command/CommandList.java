@@ -7,16 +7,16 @@ import java.util.Date;
 
 import org.bukkit.command.CommandSender;
 
+import cc.bukkitPlugin.commons.Log;
+import cc.bukkitPlugin.commons.plugin.command.TACommandBase;
+import cc.bukkitPlugin.commons.tellraw.ChatStyle;
+import cc.bukkitPlugin.commons.tellraw.ClickEvent;
+import cc.bukkitPlugin.commons.tellraw.Color;
+import cc.bukkitPlugin.commons.tellraw.Format;
+import cc.bukkitPlugin.commons.tellraw.HoverEvent;
+import cc.bukkitPlugin.commons.tellraw.Tellraw;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
-import cc.bukkitPlugin.util.Log;
-import cc.bukkitPlugin.util.plugin.command.TACommandBase;
-import cc.bukkitPlugin.util.tellraw.ChatStyle;
-import cc.bukkitPlugin.util.tellraw.ClickEvent;
-import cc.bukkitPlugin.util.tellraw.Color;
-import cc.bukkitPlugin.util.tellraw.Format;
-import cc.bukkitPlugin.util.tellraw.HoverEvent;
-import cc.bukkitPlugin.util.tellraw.Tellraw;
 
 public class CommandList extends TACommandBase<InvBack,CommandExc>{
 
@@ -65,7 +65,7 @@ public class CommandList extends TACommandBase<InvBack,CommandExc>{
             page=totalPage;
         send(pSender,String.format("========[%s]--[%d/%d]========",pArgs[0],page,totalPage));
 
-        Tellraw extra=Log.getMsgPrefixTellraw().addRawText("    ");
+        Tellraw extra=Tellraw.cHead(Log.getMsgPrefix()+"     ");
         ChatStyle tStyle=new ChatStyle().setColor(Color.blue).setFormat(Format.bold).setHoverEvent(HoverEvent.Action.show_text,C("MsgClickToGenerateCmd"));
         for(int i=(page-1)*20;i<page*20&&i<backPackets.size();i++){
             String tName=backPackets.get(i).getName();

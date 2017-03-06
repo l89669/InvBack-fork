@@ -11,10 +11,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import cc.bukkitPlugin.commons.plugin.command.TACommandBase;
+import cc.bukkitPlugin.commons.util.BukkitUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
-import cc.bukkitPlugin.util.CCBukkit;
-import cc.bukkitPlugin.util.plugin.command.TACommandBase;
 
 public class CommandSet extends TACommandBase<InvBack,CommandExc>{
 
@@ -108,7 +108,7 @@ public class CommandSet extends TACommandBase<InvBack,CommandExc>{
         ArrayList<String> subs=new ArrayList<>();
         switch(pArgs.length){
         case 1:
-            return CCBukkit.getOnlinePlayersName();
+            return BukkitUtil.getOnlinePlayersName();
         case 2:
             File backupDir=this.mPlugin.getConfigManager().getBackupDir();
             if(!backupDir.isDirectory())
@@ -144,7 +144,7 @@ public class CommandSet extends TACommandBase<InvBack,CommandExc>{
             }
             return subs;
         case 4:
-            return CCBukkit.getOfflinePlayersName();
+            return BukkitUtil.getOfflinePlayersName();
         default:
             return subs;
         }

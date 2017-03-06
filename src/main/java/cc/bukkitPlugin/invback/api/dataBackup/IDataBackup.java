@@ -10,8 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import cc.bukkitPlugin.util.config.CommentedSection;
-import cc.bukkitPlugin.util.plugin.manager.apiManager.IModel;
+import cc.bukkitPlugin.commons.plugin.manager.apiManager.IModel;
+import cc.commons.commentedyaml.CommentedSection;
 
 public interface IDataBackup extends IModel{
 

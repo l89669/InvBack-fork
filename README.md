@@ -6,5 +6,5 @@
 
 * 项目依赖
   +  [Bukkit-Commons-PluginBase](https://coding.net/u/q17866380/p/Bukkit-Commons-PluginBase/git)
-  +  [Bukkit-Commons-NMSUtil](https://coding.net/u/q17866380/p/Java-Commons-NMSUtil/git)
-  +  [Bukkit-Commons-Tellraw](https://coding.net/u/q17866380/p/Java-Commons-Tellraw/git)
+  +  [Bukkit-Commons-NMSUtil](https://coding.net/u/q17866380/p/Bukkit-Commons-NMSUtil/git)
+  +  [Bukkit-Commons-Tellraw](https://coding.net/u/q17866380/p/Bukkit-Commons-Tellraw/git)

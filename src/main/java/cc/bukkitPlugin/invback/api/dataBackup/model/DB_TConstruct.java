@@ -3,7 +3,6 @@ package cc.bukkitPlugin.invback.api.dataBackup.model;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.bukkit.OfflinePlayer;
@@ -44,16 +43,8 @@ public class DB_TConstruct extends ADB_CompressNBT{
             method_IPlayerExtendedInventoryWrapper_getAccessoryInventory=tClazz.getMethod("getAccessoryInventory",NMSUtil.clazz_EntityPlayer);
 
             tClazz=Class.forName("tconstruct.armor.player.TPlayerStats");
-            ArrayList<Method> tMethods=MethodUtil.getUnknowMethod(tClazz,void.class,NBTUtil.clazz_NBTTagCompound,true);
-            Object tObj=ClassUtil.newInstance(tClazz);
-            Object tNBTTag=NBTUtil.newNBTTagCompound();
-            int writeMethod=0;
-            MethodUtil.invokeMethod(tMethods.get(writeMethod),tObj,tNBTTag);
-            if(NBTUtil.getNBTTagCompoundValue(tNBTTag).isEmpty()){
-                writeMethod=1;
-            }
-            this.method_TPlayerStats_saveNBTData=tMethods.get(writeMethod);
-            this.method_TPlayerStats_loadNBTData=tMethods.get(1-writeMethod);
+            this.method_TPlayerStats_saveNBTData=MethodUtil.getMethod(tClazz,"saveNBTData",NBTUtil.clazz_NBTTagCompound,true);
+            this.method_TPlayerStats_loadNBTData=MethodUtil.getMethod(tClazz,"loadNBTData",NBTUtil.clazz_NBTTagCompound,true);
         }catch(Exception exp){
             if(!(exp instanceof ClassNotFoundException))
                 Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);

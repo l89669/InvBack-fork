@@ -16,7 +16,8 @@ import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.commons.commentedyaml.CommentedSection;
-import cc.commons.util.ClassUtil;
+import cc.commons.util.reflect.ClassUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 public class DB_TConstruct extends ADB_CompressNBT{
 
@@ -43,11 +44,11 @@ public class DB_TConstruct extends ADB_CompressNBT{
             method_IPlayerExtendedInventoryWrapper_getAccessoryInventory=tClazz.getMethod("getAccessoryInventory",NMSUtil.clazz_EntityPlayer);
 
             tClazz=Class.forName("tconstruct.armor.player.TPlayerStats");
-            ArrayList<Method> tMethods=ClassUtil.getUnknowMethod(tClazz,void.class,NBTUtil.clazz_NBTTagCompound);
-            Object tObj=ClassUtil.getInstance(tClazz);
+            ArrayList<Method> tMethods=MethodUtil.getUnknowMethod(tClazz,void.class,NBTUtil.clazz_NBTTagCompound,true);
+            Object tObj=ClassUtil.newInstance(tClazz);
             Object tNBTTag=NBTUtil.newNBTTagCompound();
             int writeMethod=0;
-            ClassUtil.invokeMethod(tMethods.get(writeMethod),tObj,tNBTTag);
+            MethodUtil.invokeMethod(tMethods.get(writeMethod),tObj,tNBTTag);
             if(NBTUtil.getNBTTagCompoundValue(tNBTTag).isEmpty()){
                 writeMethod=1;
             }
@@ -86,18 +87,18 @@ public class DB_TConstruct extends ADB_CompressNBT{
     }
 
     private Object getPlayerData(Player pPlayer){
-        return ClassUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,NMSUtil.getNMSPlayer(pPlayer));
+        return MethodUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,NMSUtil.getNMSPlayer(pPlayer));
     }
 
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
-        return ClassUtil.invokeMethod(this.method_TPlayerStats_saveNBTData,this.getPlayerData(pFromPlayer),NBTUtil.newNBTTagCompound());
+        return MethodUtil.invokeMethod(this.method_TPlayerStats_saveNBTData,this.getPlayerData(pFromPlayer),NBTUtil.newNBTTagCompound());
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.reset(null,pToPlayer);
-        ClassUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,pNBT,this.getPlayerData(pToPlayer));
+        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,pNBT,this.getPlayerData(pToPlayer));
     }
 
     @Override
@@ -113,15 +114,15 @@ public class DB_TConstruct extends ADB_CompressNBT{
     @Override
     public boolean reset(CommandSender pSender,Player pTargetPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pTargetPlayer);
-        Object tPlayerData=ClassUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,tNMSPlayer);
-        ClassUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,NBTUtil.newNBTTagCompound());
+        Object tPlayerData=MethodUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,tNMSPlayer);
+        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,NBTUtil.newNBTTagCompound());
         HashSet<Object> NMSInvs=new HashSet<>();
-        NMSInvs.add(ClassUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tPlayerData,tNMSPlayer));
-        NMSInvs.add(ClassUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getAccessoryInventory,tPlayerData,tNMSPlayer));
+        NMSInvs.add(MethodUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tPlayerData,tNMSPlayer));
+        NMSInvs.add(MethodUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getAccessoryInventory,tPlayerData,tNMSPlayer));
         for(Object sNMSInv : NMSInvs){
             if(sNMSInv==null)
                 continue;
-            Inventory tInv=(Inventory)ClassUtil.getInstance(NMSUtil.clazz_CraftInventory,NMSUtil.clazz_IInventory,sNMSInv);
+            Inventory tInv=(Inventory)ClassUtil.newInstance(NMSUtil.clazz_CraftInventory,NMSUtil.clazz_IInventory,sNMSInv);
             for(int i=0;i<tInv.getSize();i++){
                 tInv.setItem(i,null);
             }

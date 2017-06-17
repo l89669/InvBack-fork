@@ -9,7 +9,7 @@ import cc.bukkitPlugin.commons.Log;
 import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
-import cc.commons.util.ClassUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 public class DB_EssentailCraft3 extends ADB_CompressNBT{
 
@@ -27,10 +27,10 @@ public class DB_EssentailCraft3 extends ADB_CompressNBT{
         try{
             Class.forName("ec3.common.mod.EssentialCraftCore");
             tClazz=Class.forName("ec3.api.ApiCore");
-            this.method_ApiCore_getPlayerData=ClassUtil.getMethod(tClazz,"getPlayerData",NMSUtil.clazz_EntityPlayer);
+            this.method_ApiCore_getPlayerData=MethodUtil.getMethod(tClazz,"getPlayerData",NMSUtil.clazz_EntityPlayer,true);
             tClazz=Class.forName("ec3.api.IPlayerData");
-            this.method_IPlayerData_readFromNBTTagCompound=ClassUtil.getMethod(tClazz,"readFromNBTTagCompound",NBTUtil.clazz_NBTTagCompound);
-            this.method_IPlayerData_writeToNBTTagCompound=ClassUtil.getMethod(tClazz,"writeToNBTTagCompound",NBTUtil.clazz_NBTTagCompound);
+            this.method_IPlayerData_readFromNBTTagCompound=MethodUtil.getMethod(tClazz,"readFromNBTTagCompound",NBTUtil.clazz_NBTTagCompound,true);
+            this.method_IPlayerData_writeToNBTTagCompound=MethodUtil.getMethod(tClazz,"writeToNBTTagCompound",NBTUtil.clazz_NBTTagCompound,true);
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException))
                 Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
@@ -50,19 +50,19 @@ public class DB_EssentailCraft3 extends ADB_CompressNBT{
     }
 
     private Object getPlayerData(Player pPlayer){
-        return ClassUtil.invokeMethod(this.method_ApiCore_getPlayerData,null,NMSUtil.getNMSPlayer(pPlayer));
+        return MethodUtil.invokeMethod(this.method_ApiCore_getPlayerData,null,NMSUtil.getNMSPlayer(pPlayer));
     }
 
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         Object tSaveTag=NBTUtil.newNBTTagCompound();
-        ClassUtil.invokeMethod(this.method_IPlayerData_writeToNBTTagCompound,this.getPlayerData(pFromPlayer),tSaveTag);
+        MethodUtil.invokeMethod(this.method_IPlayerData_writeToNBTTagCompound,this.getPlayerData(pFromPlayer),tSaveTag);
         return tSaveTag;
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
-        ClassUtil.invokeMethod(this.method_IPlayerData_readFromNBTTagCompound,this.getPlayerData(pToPlayer),pNBT);
+        MethodUtil.invokeMethod(this.method_IPlayerData_readFromNBTTagCompound,this.getPlayerData(pToPlayer),pNBT);
     }
 
     @Override

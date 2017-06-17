@@ -8,13 +8,13 @@ import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
-import cc.commons.util.ClassUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 public class DB_VanillaData extends ADB_CompressNBT{
 
     public DB_VanillaData(InvBack pPlugin){
         super(pPlugin,"原版数据备份");
-        
+
         this.mFileNameMode=FileNameMode.UUID;
     }
 
@@ -27,22 +27,22 @@ public class DB_VanillaData extends ADB_CompressNBT{
     public String getName(){
         return "VanillaDataBackup";
     }
-    
+
     @Override
     protected String getFileSuffix(){
         return "dat";
     }
 
     protected Object saveDataToNBT(Player pFromPlayer){
-        Object tNBTTagCompound=ClassUtil.getInstance(NBTUtil.clazz_NBTTagCompound);
+        Object tNBTTagCompound=NBTUtil.newNBTTagCompound();
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pFromPlayer);
-        ClassUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_writeToNBT,tNMSPlayer,tNBTTagCompound);
+        MethodUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_writeToNBT,tNMSPlayer,tNBTTagCompound);
         return tNBTTagCompound;
     }
 
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pToPlayer);
-        ClassUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_readFromNBT,tNMSPlayer,pNBT);
+        MethodUtil.invokeMethod(IBNMSUtil.method_EntityPlayer_readFromNBT,tNMSPlayer,pNBT);
     }
 
     @Override

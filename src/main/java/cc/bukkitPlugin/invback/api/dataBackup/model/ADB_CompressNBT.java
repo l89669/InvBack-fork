@@ -21,14 +21,15 @@ import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
 import cc.commons.commentedyaml.CommentedSection;
-import cc.commons.util.ClassUtil;
 import cc.commons.util.FileUtil;
 import cc.commons.util.IOUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 /**
  * 此模块使用范围:<br>
  * 1.文件中的数据存储模式为压缩NBT<br>
  * 2.文件中读取出来的NBT可以还原到玩家身上
+ * 
  * @author 聪聪
  *
  */
@@ -57,6 +58,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     /**
      * 获取此模块玩家数据文件后缀
+     * 
      * @return
      */
     protected abstract String getFileSuffix();
@@ -71,7 +73,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     protected void loadDataFromStream(CommandSender pSender,InputStream pIStream,Player pToPlayer) throws IOException{
         try{
-            Object tNBTTag=ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,null,pIStream);
+            Object tNBTTag=MethodUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_readCompressed,pIStream);
             this.loadDataFromNBT(pToPlayer,tNBTTag);
         }finally{
             pIStream.close();
@@ -80,15 +82,20 @@ public abstract class ADB_CompressNBT extends ADataBackup{
 
     /**
      * 保存玩家数据到NBT
-     * @param pFromPlayer   要保存数据的玩家
-     * @return              玩家此模块的NBT数据
+     * 
+     * @param pFromPlayer
+     *            要保存数据的玩家
+     * @return 玩家此模块的NBT数据
      */
     protected abstract Object saveDataToNBT(Player pFromPlayer);
 
     /**
      * 从NBT中载入玩家此模块的数据
-     * @param pToPlayer     要载入数据的玩家
-     * @param pNBT          此模块的NBT数据
+     * 
+     * @param pToPlayer
+     *            要载入数据的玩家
+     * @param pNBT
+     *            此模块的NBT数据
      */
     protected abstract void loadDataFromNBT(Player pToPlayer,Object pNBT);
 
@@ -181,7 +188,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
         FileOutputStream tFOStream=null;
         try{
             tFOStream=FileUtil.openOutputStream(tDataFileTmp,false);
-            ClassUtil.invokeMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,null,new Object[]{tNBTTag,tFOStream});
+            MethodUtil.invokeStaticMethod(IBNMSUtil.method_NBTCompressedStreamTools_writeCompressed,new Object[]{tNBTTag,tFOStream});
             tFOStream.flush();
             if(tDataFile.isFile())
                 tDataFile.delete();

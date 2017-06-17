@@ -16,7 +16,9 @@ import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
-import cc.commons.util.ClassUtil;
+import cc.commons.util.reflect.ClassUtil;
+import cc.commons.util.reflect.FieldUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 public class DB_CustomNPC extends ADB_CompressNBT{
 
@@ -25,10 +27,10 @@ public class DB_CustomNPC extends ADB_CompressNBT{
     private Method method_PlayerData_getNBT;
     private Method method_PlayerData_readNBT;
     private HashMap<Field,Collection<Field>> mFields=new HashMap<>();
-    
+
     public DB_CustomNPC(InvBack pPlugin){
         super(pPlugin,"自定义NPC数据备份");
-        
+
         this.mDataPath="world"+File.separator+"customnpcs"+File.separator+"playerdata"+File.separator;
         this.mFileNameMode=FileNameMode.NAME;
     }
@@ -39,25 +41,25 @@ public class DB_CustomNPC extends ADB_CompressNBT{
         try{
             Class.forName("noppes.npcs.CustomNpcs");
             tClazz=Class.forName("noppes.npcs.controllers.PlayerDataController");
-            this.method_PlayerDataController_getPlayerData=ClassUtil.getMethod(tClazz,"getPlayerData",NMSUtil.clazz_EntityPlayer);
-            Field tField=ClassUtil.getField(tClazz,tClazz,-1).get(0);
-            this.value_PlayerDataController_instance=ClassUtil.getFieldValue(null,tField);
+            this.method_PlayerDataController_getPlayerData=MethodUtil.getMethod(tClazz,"getPlayerData",NMSUtil.clazz_EntityPlayer,true);
+            Field tField=FieldUtil.getField(tClazz,tClazz,-1,true).get(0);
+            this.value_PlayerDataController_instance=FieldUtil.getStaticFieldValue(tField);
             if(this.value_PlayerDataController_instance==null){
-                this.value_PlayerDataController_instance=ClassUtil.getInstance(tClazz);
+                this.value_PlayerDataController_instance=ClassUtil.newInstance(tClazz);
                 tField.set(null,this.value_PlayerDataController_instance);
             }
-                
+
             tClazz=Class.forName("noppes.npcs.controllers.PlayerData");
-            this.method_PlayerData_getNBT=ClassUtil.getMethod(tClazz,"getNBT");
-            Method tMethod=null;
-            if(ClassUtil.isMethodExist(tClazz,"readNBT",void.class,NBTUtil.clazz_NBTTagCompound)){
-                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"readNBT",NBTUtil.clazz_NBTTagCompound);
+            this.method_PlayerData_getNBT=MethodUtil.getMethod(tClazz,"getNBT",true);
+
+            if(MethodUtil.isMethodExist(tClazz,"readNBT",NBTUtil.clazz_NBTTagCompound,true)){
+                this.method_PlayerData_readNBT=MethodUtil.getMethod(tClazz,"readNBT",NBTUtil.clazz_NBTTagCompound,true);
             }else{
-                this.method_PlayerData_readNBT=ClassUtil.getMethod(tClazz,"setNBT",NBTUtil.clazz_NBTTagCompound);
+                this.method_PlayerData_readNBT=MethodUtil.getMethod(tClazz,"setNBT",NBTUtil.clazz_NBTTagCompound,true);
             }
-            
+
             for(Field sField : tClazz.getDeclaredFields()){
-                if(ClassUtil.isMethodExist(sField.getType(),"loadNBTData")){
+                if(MethodUtil.isMethodExist(sField.getType(),"loadNBTData",true)){
                     ArrayList<Field> tFields=new ArrayList<>();
                     for(Field ssField : sField.getType().getDeclaredFields()){
                         if(ssField.getType().isAssignableFrom(Collection.class)){
@@ -86,39 +88,38 @@ public class DB_CustomNPC extends ADB_CompressNBT{
     protected String getFileSuffix(){
         return "dat";
     }
-    
+
     private Object getPlayerData(Player pPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pPlayer);
-        return ClassUtil.invokeMethod(this.method_PlayerDataController_getPlayerData,this.value_PlayerDataController_instance,tNMSPlayer);
+        return MethodUtil.invokeMethod(this.method_PlayerDataController_getPlayerData,this.value_PlayerDataController_instance,tNMSPlayer);
     }
 
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         Object tPlayerData=this.getPlayerData(pFromPlayer);
-        return ClassUtil.invokeMethod(this.method_PlayerData_getNBT,tPlayerData);
+        return MethodUtil.invokeMethod(this.method_PlayerData_getNBT,tPlayerData);
     }
 
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.reset(null,pToPlayer);
         Object tPlayerData=this.getPlayerData(pToPlayer);
-        ClassUtil.invokeMethod(this.method_PlayerData_readNBT,tPlayerData,pNBT);
+        MethodUtil.invokeMethod(this.method_PlayerData_readNBT,tPlayerData,pNBT);
     }
-    
+
     @Override
     public boolean reset(CommandSender pSender,Player pTargetPlayer){
         if(!this.mEnable)
             return false;
-        
+
         Object tPlayerData=this.getPlayerData(pTargetPlayer);
         for(Map.Entry<Field,Collection<Field>> sEntry : this.mFields.entrySet()){
-            Object tSubValue=ClassUtil.getFieldValue(tPlayerData,sEntry.getKey());
+            Object tSubValue=FieldUtil.getFieldValue(sEntry.getKey(),tPlayerData);
             for(Field sField : sEntry.getValue()){
-                ((Collection<?>)ClassUtil.getFieldValue(tSubValue,sField)).clear();
+                ((Collection<?>)FieldUtil.getFieldValue(sField,tSubValue)).clear();
             }
         }
         return true;
     }
-
 
 }

@@ -16,16 +16,16 @@ import cc.bukkitPlugin.commons.plugin.manager.fileManager.IConfigModel;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.manager.DataManager;
 import cc.commons.commentedyaml.CommentedYamlConfig;
-import cc.commons.util.ClassUtil;
+import cc.commons.util.reflect.FieldUtil;
 
 public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeedReload{
 
     private InvBack mPlugin;
-    /**最后一次运行的时间*/
+    /** 最后一次运行的时间 */
     private long mLastRunUpTime=0;
-    /**备份时间间隔(秒)*/
+    /** 备份时间间隔(秒) */
     private int mBackupInterval=900;
-    /**任务执行定时器*/
+    /** 任务执行定时器 */
     private Timer mTimer=null;
 
     public TaskExec(InvBack pPlugin){
@@ -68,7 +68,7 @@ public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeed
     public void addDefaults(CommentedYamlConfig pConfig){
         pConfig.addDefault("BackupInterval",this.mBackupInterval,"多少秒备份一次玩家数据");
     }
-    
+
     @Override
     public void setConfig(CommandSender pSender,CommentedYamlConfig pConfig){
         this.mBackupInterval=pConfig.getInt("BackupInterval",this.mBackupInterval);
@@ -85,7 +85,7 @@ public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeed
         try{
             for(Field sField : TimerTask.class.getDeclaredFields()){
                 if(((sField.getModifiers()&(Modifier.FINAL+Modifier.STATIC))==0)&&sField.getType()==int.class||sField.getType()==long.class){
-                    ClassUtil.setFieldValue(sField,this,0);
+                    FieldUtil.setFieldValue(sField,this,0);
                 }
             }
         }catch(Throwable exp){

@@ -20,10 +20,11 @@ import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.commons.commentedyaml.CommentedSection;
-import cc.commons.util.ClassUtil;
 import cc.commons.util.CollUtil;
 import cc.commons.util.FileUtil;
 import cc.commons.util.IOUtil;
+import cc.commons.util.reflect.FieldUtil;
+import cc.commons.util.reflect.MethodUtil;
 
 public class DB_Achievement extends ADB_CompressNBT{
 
@@ -31,7 +32,7 @@ public class DB_Achievement extends ADB_CompressNBT{
     private Method method_StatisticsFile_loadStatistic;
     private Method method_StatisticsFile_saveStatistic;
     private Field field_StatFileWriter_stats;
-    
+
     public DB_Achievement(InvBack pPlugin){
         super(pPlugin,"成就数据备份");
 
@@ -50,12 +51,12 @@ public class DB_Achievement extends ADB_CompressNBT{
             }
             if(this.method_EntityPlayerMP_getStatisticMan==null)
                 return false;
-            
+
             Class<?> tClazz=this.method_EntityPlayerMP_getStatisticMan.getReturnType();
-            this.method_StatisticsFile_loadStatistic=ClassUtil.getUnknowMethod(tClazz,Map.class,String.class).get(0);
-            this.method_StatisticsFile_saveStatistic=ClassUtil.getUnknowMethod(tClazz,String.class,Map.class).get(0);
-            this.field_StatFileWriter_stats=ClassUtil.getField(tClazz.getSuperclass(),Map.class,-1).get(0);
-            
+            this.method_StatisticsFile_loadStatistic=MethodUtil.getUnknowMethod(tClazz,Map.class,String.class,true).get(0);
+            this.method_StatisticsFile_saveStatistic=MethodUtil.getUnknowMethod(tClazz,String.class,Map.class,true).get(0);
+            this.field_StatFileWriter_stats=FieldUtil.getField(tClazz.getSuperclass(),Map.class,-1,true).get(0);
+
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException))
                 Log.severe("模块 "+this.getDescription()+" 初始化时发生了错误",exp);
@@ -79,7 +80,7 @@ public class DB_Achievement extends ADB_CompressNBT{
         pSection.getParent().addDefaultComments(pSection.getName(),"成就系统由于客户端的更新机制(只会完成而不会消失)","在服务器重置成就后,客户端的成就显示会不及时","可通过重新登陆服务器解决");
         return super.addDefaultConfig(pSection);
     }
-    
+
     @Override
     protected Object saveDataToNBT(Player pFromPlayer){
         throw new UnsupportedOperationException();
@@ -96,23 +97,23 @@ public class DB_Achievement extends ADB_CompressNBT{
     }
 
     private Object getStatMan(Player pPlayer){
-        return ClassUtil.invokeMethod(this.method_EntityPlayerMP_getStatisticMan,NMSUtil.getNMSPlayer(pPlayer));
+        return MethodUtil.invokeMethod(this.method_EntityPlayerMP_getStatisticMan,NMSUtil.getNMSPlayer(pPlayer));
     }
-    
+
     private Map<Object,Object> getManStatValue(Object pStatMan){
-        return (Map<Object,Object>)ClassUtil.getFieldValue(pStatMan,this.field_StatFileWriter_stats);
+        return (Map<Object,Object>)FieldUtil.getFieldValue(this.field_StatFileWriter_stats,pStatMan);
     }
-    
+
     protected String saveDataToString(Player pFromPlayer){
         Object tStatMan=this.getStatMan(pFromPlayer);
-        return (String)ClassUtil.invokeMethod(this.method_StatisticsFile_saveStatistic,tStatMan,this.getManStatValue(tStatMan));
+        return (String)MethodUtil.invokeMethod(this.method_StatisticsFile_saveStatistic,tStatMan,this.getManStatValue(tStatMan));
     }
 
     protected void loadDataFromString(Player pToPlayer,String pData){
         Object tStatMan=this.getStatMan(pToPlayer);
         Map<Object,Object> tPlayerStatValue=this.getManStatValue(tStatMan);
         tPlayerStatValue.clear();
-        tPlayerStatValue.putAll((Map<Object,Object>)ClassUtil.invokeMethod(this.method_StatisticsFile_loadStatistic,tStatMan,pData));
+        tPlayerStatValue.putAll((Map<Object,Object>)MethodUtil.invokeMethod(this.method_StatisticsFile_loadStatistic,tStatMan,pData));
     }
 
     @Override

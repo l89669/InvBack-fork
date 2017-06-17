@@ -2,12 +2,14 @@ package cc.bukkitPlugin.invback.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import cc.bukkitPlugin.commons.Log;
 import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.commons.util.reflect.ClassUtil;
@@ -49,7 +51,12 @@ public class IBNMSUtil extends NBTUtil{
         World tWorld=Bukkit.getWorlds().get(0);
         Method tMethod=MethodUtil.getMethod(tWorld.getClass(),"getHandle",true);
         Object tNMSWorld=MethodUtil.invokeMethod(tMethod,tWorld);
-        Object tObj_EntityZombie=ClassUtil.newInstance(clazz_EntityZombie,tMethod.getReturnType(),tNMSWorld);
+        Object tObj_EntityZombie=null;
+        try{
+            tObj_EntityZombie=clazz_EntityZombie.getDeclaredConstructors()[0].newInstance(tNMSWorld);
+        }catch(InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|SecurityException e){
+            Log.severe(e);
+        }
         Object tObj_NBTTagCompound=NBTUtil.newNBTTagCompound();
         ArrayList<Method> tms=MethodUtil.getUnknowMethod(clazz_EntityZombie,void.class,clazz_NBTTagCompound,true);
         int readMethodPos=0;

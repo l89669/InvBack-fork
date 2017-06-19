@@ -106,7 +106,10 @@ public class DB_TConstruct extends ADB_CompressNBT{
     public boolean reset(CommandSender pSender,Player pTargetPlayer){
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pTargetPlayer);
         Object tPlayerData=MethodUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,tNMSPlayer);
-        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,NBTUtil.newNBTTagCompound());
+
+        Object tNBTTag=NBTUtil.newNBTTagCompound();
+        NBTUtil.invokeNBTTagCompound_set(tNBTTag,"TConstruct",NBTUtil.newNBTTagCompound());
+        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,tNBTTag);
         HashSet<Object> NMSInvs=new HashSet<>();
         NMSInvs.add(MethodUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tPlayerData,tNMSPlayer));
         NMSInvs.add(MethodUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getAccessoryInventory,tPlayerData,tNMSPlayer));

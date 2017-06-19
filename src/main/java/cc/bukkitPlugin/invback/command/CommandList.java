@@ -52,7 +52,8 @@ public class CommandList extends TACommandBase<InvBack,CommandExc>{
         if(pArgs.length==2){
             try{
                 page=Integer.parseInt(pArgs[1]);
-            }catch(NumberFormatException ignore){}
+            }catch(NumberFormatException ignore){
+            }
         }
         if(page<=0)
             page=1;
@@ -85,7 +86,6 @@ public class CommandList extends TACommandBase<InvBack,CommandExc>{
         ArrayList<String> helps=new ArrayList<>();
         if(hasCmdPermission(pSender)){
             helps.add(this.constructCmdUsage()+" <"+C("WordDate")+"> ["+C("WordPage")+"]");
-            helps.add(this.constructCmdUsage());
             helps.add(this.mExector.getCmdDescPrefix()+C("HelpList1"));
         }
         return helps;

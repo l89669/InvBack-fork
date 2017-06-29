@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -60,8 +61,8 @@ public class DB_TConstruct extends ADB_CompressNBT{
 
     @Override
     public boolean addDefaultConfig(CommentedSection pSection){
-        pSection.getParent().addDefaultComments(pSection.getName(),"此模块的数据由于是和玩家数据存储到一起的,所以无法禁用");
         pSection.addDefault("Description",this.mDescription,"模块描述,显示用");
+        pSection.addDefault("Enable",this.mEnable,"是否启用该模块","此模块的数据由于是和玩家数据存储到一起的,所以无法禁用备份");
         return true;
     }
 
@@ -69,6 +70,7 @@ public class DB_TConstruct extends ADB_CompressNBT{
     public void reloadConfig(CommandSender pSender,CommentedSection pSection){
         if(pSection!=null){
             this.mDescription=pSection.getString("Description",this.mDescription);
+            this.mEnable=pSection.getBoolean("Enable",this.mEnable);
         }
     }
 
@@ -89,7 +91,7 @@ public class DB_TConstruct extends ADB_CompressNBT{
     @Override
     protected void loadDataFromNBT(Player pToPlayer,Object pNBT){
         this.reset(null,pToPlayer);
-        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,pNBT,this.getPlayerData(pToPlayer));
+        MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,this.getPlayerData(pToPlayer),fixNBT(pNBT));
     }
 
     @Override
@@ -107,8 +109,7 @@ public class DB_TConstruct extends ADB_CompressNBT{
         Object tNMSPlayer=NMSUtil.getNMSPlayer(pTargetPlayer);
         Object tPlayerData=MethodUtil.invokeMethod(this.method_TConstructAPI_getInventoryWrapper,null,tNMSPlayer);
 
-        Object tNBTTag=NBTUtil.newNBTTagCompound();
-        NBTUtil.invokeNBTTagCompound_set(tNBTTag,"TConstruct",NBTUtil.newNBTTagCompound());
+        Object tNBTTag=fixNBT(NBTUtil.newNBTTagCompound());
         MethodUtil.invokeMethod(this.method_TPlayerStats_loadNBTData,tPlayerData,tNBTTag);
         HashSet<Object> NMSInvs=new HashSet<>();
         NMSInvs.add(MethodUtil.invokeMethod(method_IPlayerExtendedInventoryWrapper_getKnapsackInventory,tPlayerData,tNMSPlayer));
@@ -122,6 +123,14 @@ public class DB_TConstruct extends ADB_CompressNBT{
             }
         }
         return true;
+    }
+
+    public static Object fixNBT(Object pNBTTag){
+        Map<String,Object> tMapValue=NBTUtil.getNBTTagCompoundValue(pNBTTag);
+        if(!tMapValue.containsKey("TConstruct")){
+            tMapValue.put("TConstruct",NBTUtil.newNBTTagCompound());
+        }
+        return pNBTTag;
     }
 
 }

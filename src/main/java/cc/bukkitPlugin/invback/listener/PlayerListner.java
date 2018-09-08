@@ -1,13 +1,15 @@
 package cc.bukkitPlugin.invback.listener;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import cc.bukkitPlugin.commons.plugin.AListener;
 import cc.bukkitPlugin.commons.plugin.manager.fileManager.IConfigModel;
 import cc.bukkitPlugin.invback.InvBack;
+import cc.bukkitPlugin.invback.task.TaskExec;
 import cc.commons.commentedyaml.CommentedYamlConfig;
 
 public class PlayerListner extends AListener<InvBack> implements IConfigModel{
@@ -34,11 +36,14 @@ public class PlayerListner extends AListener<InvBack> implements IConfigModel{
     public void onPlayerQuit(PlayerQuitEvent pEvent){
         if(!this.mClearMemoryDataWherPlayerQuit)
             return;
-        this.mPlugin.getDataManager().removePlayerDataFromMemony(pEvent.getPlayer());
+
+        Player tPlayer=pEvent.getPlayer();
+        this.mPlugin.getDataManager().removePlayerDataFromMemony(tPlayer);
+        TaskExec.mQuitPlayer.put(tPlayer.getName().toLowerCase(),tPlayer);
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent pEvent){
-
+    public void onPlayerLogin(PlayerLoginEvent pEvent){
+        TaskExec.mQuitPlayer.remove(pEvent.getPlayer().getName().toLowerCase());
     }
 }

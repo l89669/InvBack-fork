@@ -14,6 +14,7 @@ import cc.bukkitPlugin.commons.nmsutil.NMSUtil;
 import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.commons.util.reflect.ClassUtil;
 import cc.commons.util.reflect.MethodUtil;
+import cc.commons.util.reflect.filter.MethodFilter;
 
 public class IBNMSUtil extends NBTUtil{
 
@@ -31,14 +32,10 @@ public class IBNMSUtil extends NBTUtil{
         else NBTCompressedStreamTools=ClassUtil.getClass(packetPath+"NBTCompressedStreamTools"); // bukkit
         // NBT-END
 
-        method_NBTCompressedStreamTools_readCompressed=MethodUtil.getUnknowMethod(NBTCompressedStreamTools,
-                clazz_NBTTagCompound,
-                InputStream.class,
-                true).get(0);
-        method_NBTCompressedStreamTools_writeCompressed=MethodUtil.getUnknowMethod(NBTCompressedStreamTools,
-                void.class,
-                new Class<?>[]{clazz_NBTTagCompound,OutputStream.class},
-                true).get(0);
+        method_NBTCompressedStreamTools_readCompressed=MethodUtil.getDeclaredMethod(NBTCompressedStreamTools,
+                MethodFilter.rpt(clazz_NBTTagCompound,InputStream.class)).first();
+        method_NBTCompressedStreamTools_writeCompressed=MethodUtil.getDeclaredMethod(NBTCompressedStreamTools,
+                MethodFilter.rpt(void.class,clazz_NBTTagCompound,OutputStream.class)).first();
 
         // Entity readFromNBT>>InvBack
         Class<?> clazz_EntityZombie=null;
@@ -58,7 +55,7 @@ public class IBNMSUtil extends NBTUtil{
             Log.severe(e);
         }
         Object tObj_NBTTagCompound=NBTUtil.newNBTTagCompound();
-        ArrayList<Method> tms=MethodUtil.getUnknowMethod(clazz_EntityZombie,void.class,clazz_NBTTagCompound,true);
+        ArrayList<Method> tms=MethodUtil.getDeclaredMethod(clazz_EntityZombie,MethodFilter.rpt(void.class,clazz_NBTTagCompound));
         int readMethodPos=0;
         MethodUtil.invokeMethod(tms.get(0),tObj_EntityZombie,tObj_NBTTagCompound);
         if(!NBTUtil.getNBTTagCompoundValue(tObj_NBTTagCompound).isEmpty()){

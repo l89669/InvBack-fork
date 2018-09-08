@@ -2,11 +2,16 @@ package cc.bukkitPlugin.invback.task;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 import cc.bukkitPlugin.commons.Log;
@@ -19,6 +24,11 @@ import cc.commons.commentedyaml.CommentedYamlConfig;
 import cc.commons.util.reflect.FieldUtil;
 
 public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeedReload{
+
+    /** 退出但未备份的玩家,由监听器调度 */
+    public static final ConcurrentHashMap<String,OfflinePlayer> mQuitPlayer=new ConcurrentHashMap<>();
+    /** 退出但未备份的玩家,由备份模块调度 */
+    public static final Collection<OfflinePlayer> mUnbackupQuitPlayers=Collections.synchronizedCollection(new ArrayList<OfflinePlayer>());
 
     private InvBack mPlugin;
     /** 最后一次运行的时间 */
@@ -146,11 +156,17 @@ public class TaskExec extends TimerTask implements IConfigModel,INeedClose,INeed
         DataManager tDataMan=this.mPlugin.getManager(DataManager.class);
         boolean doClean=this.isNewDay();
         this.mLastRunUpTime=System.currentTimeMillis();
+
+        TaskExec.mUnbackupQuitPlayers.clear();
+        TaskExec.mUnbackupQuitPlayers.addAll(TaskExec.mQuitPlayer.values());
+        TaskExec.mQuitPlayer.clear();
         try{
             tDataMan.backup(null);
         }catch(Throwable exp){
             Log.severe(this.mPlugin.C("MsgErrorOnBackupPlayeData"),exp);
         }
+        TaskExec.mUnbackupQuitPlayers.clear();
+
         if(doClean){
             tDataMan.clearExpriedBackup();
         }

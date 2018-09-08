@@ -28,6 +28,8 @@ import cc.commons.util.IOUtil;
 import cc.commons.util.reflect.ClassUtil;
 import cc.commons.util.reflect.FieldUtil;
 import cc.commons.util.reflect.MethodUtil;
+import cc.commons.util.reflect.filter.FieldFilter;
+import cc.commons.util.reflect.filter.MethodFilter;
 import travellersgear.api.TGSaveData;
 import travellersgear.api.TravellersGearAPI;
 
@@ -67,12 +69,12 @@ public class DB_TravellersGear extends ADataBackup{
                     new Class<?>[]{NMSUtil.clazz_EntityPlayer,NBTUtil.clazz_NBTTagCompound},
                     true);
 
-            this.mTGSDInstance=(TGSaveData)FieldUtil.getStaticFieldValue(FieldUtil.getField(TGSaveData.class,TGSaveData.class,-1,true).get(0));
+            this.mTGSDInstance=(TGSaveData)FieldUtil.getStaticFieldValue(FieldUtil.getDeclaredField(TGSaveData.class,FieldFilter.t(TGSaveData.class)).first());
             this.mTGSDMap=(HashMap<UUID,Object>)FieldUtil.getFieldValue(TGSaveData.class,"playerData",true,this.mTGSDInstance);
             this.mTempTGSD=ClassUtil.newInstance(TGSaveData.class,String.class,"TestData");
             this.mTempTGSDMap=(HashMap<UUID,Object>)FieldUtil.getFieldValue(TGSaveData.class,"playerData",true,this.mTempTGSD);
             Object tNBTTag=ClassUtil.newInstance(NBTUtil.clazz_NBTTagCompound);
-            ArrayList<Method> tMethods=MethodUtil.getUnknowMethod(TGSaveData.class,void.class,NBTUtil.clazz_NBTTagCompound,true);
+            ArrayList<Method> tMethods=MethodUtil.getDeclaredMethod(TGSaveData.class,MethodFilter.rpt(void.class,NBTUtil.clazz_NBTTagCompound));
             MethodUtil.invokeMethod(tMethods.get(0),this.mTempTGSD,tNBTTag);
             int writeMethod=0;
             if(NBTUtil.getNBTTagCompoundValue(tNBTTag).isEmpty())

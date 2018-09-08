@@ -14,8 +14,9 @@ public class ConfigManager extends TConfigManager<InvBack>{
     private File mBackupDir=new File("");
     private File mServerDir=new File("");
     private FileNameMode mFileNameMode=FileNameMode.UUID;
-    private boolean mKeepGameModeWhenRollBack=true;
-    private boolean mRemoveDataWhenPlayerQuit=true;
+    public boolean mKeepGameModeWhenRollBack=true;
+    public boolean mRemoveDataWhenPlayerQuit=true;
+    public boolean mBackupOnlinePlayerOnly=true;
 
     public ConfigManager(InvBack pPlugin){
         super(pPlugin,"1.1");
@@ -33,9 +34,10 @@ public class ConfigManager extends TConfigManager<InvBack>{
         this.checkUpdate();
         this.addDefaults();
 
-        /**给变量赋值*/
+        /** 给变量赋值 */
         this.mKeepGameModeWhenRollBack=this.mConfig.getBoolean("KeepGameModeWhenRollBack");
         this.mRemoveDataWhenPlayerQuit=this.mConfig.getBoolean("RemoveDataWhenPlayerQuit");
+        this.mBackupOnlinePlayerOnly=this.mConfig.getBoolean("BackupOnlinePlayerOnly");
         this.mFileNameMode=FileNameMode.getMode(this.mConfig.getString("FileNameMode"),this.mFileNameMode);
         String tPath=this.mConfig.getString("BackupDir","back"+File.separator);
         this.mBackupDir=new File(tPath);
@@ -70,6 +72,7 @@ public class ConfigManager extends TConfigManager<InvBack>{
         super.addDefaults();
         this.mConfig.addDefault("KeepGameModeWhenRollBack",true,"在使用copy,set,rollback命令时保持还原数据前的游戏模式");
         this.mConfig.addDefault("ReplaceFileDataWithOnlineData",true,"如果对应的玩家在线,使用内存中的数据进行备份,而非模块对应的存档文件","启用此项可以比较实时的备份玩家数据");
+        this.mConfig.addDefault("BackupOnlinePlayerOnly",true,"只备份在线玩家的数据");
     }
 
     public File getBackupDir(){

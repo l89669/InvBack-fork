@@ -19,6 +19,7 @@ import cc.bukkitPlugin.invback.api.FileNameMode;
 import cc.commons.util.reflect.ClassUtil;
 import cc.commons.util.reflect.FieldUtil;
 import cc.commons.util.reflect.MethodUtil;
+import cc.commons.util.reflect.filter.FieldFilter;
 
 public class DB_CustomNPC extends ADB_CompressNBT{
 
@@ -42,7 +43,7 @@ public class DB_CustomNPC extends ADB_CompressNBT{
             Class.forName("noppes.npcs.CustomNpcs");
             tClazz=Class.forName("noppes.npcs.controllers.PlayerDataController");
             this.method_PlayerDataController_getPlayerData=MethodUtil.getMethod(tClazz,"getPlayerData",NMSUtil.clazz_EntityPlayer,true);
-            Field tField=FieldUtil.getField(tClazz,tClazz,-1,true).get(0);
+            Field tField=FieldUtil.getDeclaredField(tClazz,FieldFilter.t(tClazz)).first();
             this.value_PlayerDataController_instance=FieldUtil.getStaticFieldValue(tField);
             if(this.value_PlayerDataController_instance==null){
                 this.value_PlayerDataController_instance=ClassUtil.newInstance(tClazz);

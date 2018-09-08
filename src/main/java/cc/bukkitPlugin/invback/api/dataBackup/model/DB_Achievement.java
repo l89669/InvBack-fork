@@ -25,6 +25,8 @@ import cc.commons.util.FileUtil;
 import cc.commons.util.IOUtil;
 import cc.commons.util.reflect.FieldUtil;
 import cc.commons.util.reflect.MethodUtil;
+import cc.commons.util.reflect.filter.FieldFilter;
+import cc.commons.util.reflect.filter.MethodFilter;
 
 public class DB_Achievement extends ADB_CompressNBT{
 
@@ -53,9 +55,9 @@ public class DB_Achievement extends ADB_CompressNBT{
                 return false;
 
             Class<?> tClazz=this.method_EntityPlayerMP_getStatisticMan.getReturnType();
-            this.method_StatisticsFile_loadStatistic=MethodUtil.getUnknowMethod(tClazz,Map.class,String.class,true).get(0);
-            this.method_StatisticsFile_saveStatistic=MethodUtil.getUnknowMethod(tClazz,String.class,Map.class,true).get(0);
-            this.field_StatFileWriter_stats=FieldUtil.getField(tClazz.getSuperclass(),Map.class,-1,true).get(0);
+            this.method_StatisticsFile_loadStatistic=MethodUtil.getDeclaredMethod(tClazz,MethodFilter.rpt(Map.class,String.class)).first();
+            this.method_StatisticsFile_saveStatistic=MethodUtil.getDeclaredMethod(tClazz,MethodFilter.rpt(String.class,Map.class)).first();
+            this.field_StatFileWriter_stats=FieldUtil.getDeclaredField(tClazz.getSuperclass(),FieldFilter.t(Map.class)).first();
 
         }catch(Throwable exp){
             if(!(exp instanceof ClassNotFoundException))

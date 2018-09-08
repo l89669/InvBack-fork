@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -19,6 +21,7 @@ import cc.bukkitPlugin.commons.nmsutil.nbt.NBTUtil;
 import cc.bukkitPlugin.commons.util.BukkitUtil;
 import cc.bukkitPlugin.invback.InvBack;
 import cc.bukkitPlugin.invback.api.FileNameMode;
+import cc.bukkitPlugin.invback.task.TaskExec;
 import cc.bukkitPlugin.invback.util.IBNMSUtil;
 import cc.commons.commentedyaml.CommentedSection;
 import cc.commons.util.FileUtil;
@@ -31,7 +34,6 @@ import cc.commons.util.reflect.MethodUtil;
  * 2.文件中读取出来的NBT可以还原到玩家身上
  * 
  * @author 聪聪
- *
  */
 public abstract class ADB_CompressNBT extends ADataBackup{
 
@@ -120,6 +122,29 @@ public abstract class ADB_CompressNBT extends ADataBackup{
             }
         }
 
+        if(this.mPlugin.getConfigManager().mBackupOnlinePlayerOnly){
+            List<OfflinePlayer> tSavePlayers=new ArrayList<>(TaskExec.mUnbackupQuitPlayers);
+            if(!pEnableReplace){
+                tSavePlayers.addAll(BukkitUtil.getOnlinePlayers());
+            }
+
+            for(OfflinePlayer sPlayer : tSavePlayers){
+                String tFileName=this.getPlayerFileName(sPlayer).toLowerCase();
+                if(tBackedFile.contains(tFileName))
+                    continue;
+
+                File tDataFile=new File(this.mDataDir,tFileName);
+                if(tDataFile.isFile()){
+                    try{
+                        FileUtil.copyFile(tDataFile,new File(pTargetDir,tFileName));
+                    }catch(IOException exp){
+                        Log.severe(pSender,this.mPlugin.C("MsgErrorOnModelBackupCopyFile","%model%","this.getDescription()")+": "+exp.getMessage(),exp);
+                    }
+                }
+            }
+            return true;
+        }
+
         File[] tListFile=this.mDataDir.listFiles();
         if(tListFile==null||tListFile.length==0)
             return true;
@@ -169,6 +194,7 @@ public abstract class ADB_CompressNBT extends ADataBackup{
         }
         if(tEntry==null){
             Log.warn(pSender,this.mPlugin.C("MsgModelBackupDataNotFoundPlayer",new String[]{"%model%","%player%"},this.getDescription(),pFromPlayer.getName()));
+            Log.developInfo("no entry named \""+(this.getName()+File.separator+tZipEntrySuffix)+"\" at file "+pBackupData.getName());
         }else{
             this.loadDataFromStream(pSender,pBackupData.getInputStream(tEntry),pToPlayer);
         }
